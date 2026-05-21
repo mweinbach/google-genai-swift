@@ -5,91 +5,6 @@ import Foundation
 
 private let LANGUAGE_LABEL_PREFIX = "gl-swift/"
 
-// MARK: - Module stubs (replaced in Wave 4)
-
-// Each of these `final class FooModule` types is a placeholder so `GoogleGenAI` can hold
-// references to them. The real implementations live in dedicated files in later waves.
-
-/// TODO Wave 4: replace with real implementation.
-public final class ModelsModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class ChatsModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public let models: ModelsModule
-    public init(models: ModelsModule, apiClient: ApiClient) {
-        self.models = models
-        self.apiClient = apiClient
-    }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class BatchesModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class CachesModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class FilesModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class FileSearchStoresModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class OperationsModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class TokensModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class TuningsModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class LiveModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public let auth: Auth
-    public init(apiClient: ApiClient, auth: Auth) {
-        self.apiClient = apiClient
-        self.auth = auth
-    }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class DocumentsModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
-/// TODO Wave 4: replace with real implementation.
-public final class MusicModule: @unchecked Sendable {
-    public let apiClient: ApiClient
-    public init(apiClient: ApiClient) { self.apiClient = apiClient }
-}
-
 // MARK: - GoogleGenAI
 
 /// Google Gen AI SDK's configuration options.
@@ -132,70 +47,156 @@ public struct GoogleGenAIOptions: Sendable {
     }
 }
 
-/// The Google GenAI SDK.
+/// The Google GenAI SDK — entry-point class.
 ///
-/// Provides access to the GenAI features through either the Gemini API or the Vertex AI API.
+/// Provides access to the GenAI features through either the Gemini API or the
+/// Vertex AI / Gemini Enterprise Agent Platform API. Mirrors `new GoogleGenAI(...)`
+/// from the JavaScript SDK.
+///
+/// ```swift
+/// // Gemini API with explicit API key
+/// let ai = try GoogleGenAI(apiKey: "GEMINI_API_KEY")
+/// let response = try await ai.models.generateContent(
+///     GenerateContentParameters(
+///         model: "gemini-2.5-flash",
+///         contents: .part(.text("Why is the sky blue?"))
+///     )
+/// )
+/// print(response.text ?? "")
+///
+/// // Vertex AI / Enterprise
+/// let ai = try GoogleGenAI(
+///     enterprise: true,
+///     project: "your-project",
+///     location: "us-central1"
+/// )
+///
+/// // Read from environment variables
+/// // (GOOGLE_API_KEY / GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI / _USE_ENTERPRISE,
+/// //  GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION)
+/// let ai = try GoogleGenAI()
+/// ```
 public final class GoogleGenAI: @unchecked Sendable {
     public let apiClient: ApiClient
-    private let apiKey: String?
     public let vertexai: Bool
-    private let apiVersion: String?
+    public let apiVersion: String?
+    private let apiKey: String?
     private let httpOptions: HttpOptions?
 
-    public let models: ModelsModule
-    public let live: LiveModule
-    public let batches: BatchesModule
-    public let chats: ChatsModule
-    public let caches: CachesModule
-    public let files: FilesModule
-    public let operations: OperationsModule
-    public let authTokens: TokensModule
-    public let tunings: TuningsModule
-    public let fileSearchStores: FileSearchStoresModule
+    // Module surface — matches js-genai's `client.ts` public properties 1:1.
+    public let models: Models
+    public let live: Live
+    public let batches: Batches
+    public let chats: Chats
+    public let caches: Caches
+    public let files: Files
+    public let operations: Operations
+    public let authTokens: Tokens
+    public let tunings: Tunings
+    public let fileSearchStores: FileSearchStores
 
+    /// Primary initializer.
     public init(options: GoogleGenAIOptions) throws {
-        // The Swift port currently only supports API-key auth (the `cross`/`web` runtime path
-        // from js-genai). Vertex ADC will be added once `DefaultAuth` learns to sign JWTs.
-        guard let apiKey = options.apiKey else {
+        let env = ProcessInfo.processInfo.environment
+        let envApiKey = env["GOOGLE_API_KEY"] ?? env["GEMINI_API_KEY"]
+        let envProject = env["GOOGLE_CLOUD_PROJECT"]
+        let envLocation = env["GOOGLE_CLOUD_LOCATION"]
+        let envEnterprise = env["GOOGLE_GENAI_USE_ENTERPRISE"].flatMap(parseBool)
+        let envVertexai = env["GOOGLE_GENAI_USE_VERTEXAI"].flatMap(parseBool)
+
+        // Enterprise vs vertexai precedence: explicit option > env var > default false.
+        if let e = options.enterprise, let v = options.vertexai, e != v {
             throw GenAIError.invalidArgument(
-                "An API Key must be set when running in an unspecified environment."
+                "enterprise and vertexai flags have conflicting values, please set enterprise value only."
             )
         }
-        if let enterprise = options.enterprise,
-           let vertexai = options.vertexai,
-           enterprise != vertexai {
+        let useVertex = options.enterprise
+            ?? options.vertexai
+            ?? envEnterprise
+            ?? envVertexai
+            ?? false
+
+        let apiKey = options.apiKey ?? envApiKey
+        let project = options.project ?? envProject
+        let location = options.location ?? envLocation
+
+        // Resolve auth: API key (Gemini API) takes precedence; Vertex requires project+location.
+        let auth: Auth
+        if let apiKey {
+            auth = DefaultAuth(apiKey: apiKey)
+        } else if useVertex {
+            if project == nil || location == nil {
+                throw GenAIError.invalidArgument(
+                    "Vertex AI / Enterprise requires either an API key or both project and location."
+                )
+            }
+            auth = DefaultAuth(googleAuthOptions: options.googleAuthOptions)
+        } else {
             throw GenAIError.invalidArgument(
-                "enterprise and vertexAI flags have conflicting values, please set enterprise value only."
+                "An API key must be set for the Gemini API. Provide options.apiKey or set GOOGLE_API_KEY / GEMINI_API_KEY in the environment."
             )
         }
-        self.vertexai = options.enterprise ?? options.vertexai ?? false
+
+        self.vertexai = useVertex
         self.apiKey = apiKey
         self.apiVersion = options.apiVersion
         self.httpOptions = options.httpOptions
-        let auth: Auth = DefaultAuth(apiKey: apiKey)
-        // Wave 6: real Foundation-backed Uploader / Downloader.
+
         self.apiClient = try ApiClient(ApiClientInitOptions(
             auth: auth,
             uploader: URLSessionUploader(),
             downloader: URLSessionDownloader(),
-            project: options.project,
-            location: options.location,
+            project: project,
+            location: location,
             apiKey: apiKey,
-            vertexai: self.vertexai,
+            vertexai: useVertex,
             apiVersion: options.apiVersion,
             httpOptions: options.httpOptions,
             userAgentExtra: LANGUAGE_LABEL_PREFIX + "cross"
         ))
-        self.models = ModelsModule(apiClient: self.apiClient)
-        self.live = LiveModule(apiClient: self.apiClient, auth: auth)
-        self.chats = ChatsModule(models: self.models, apiClient: self.apiClient)
-        self.batches = BatchesModule(apiClient: self.apiClient)
-        self.caches = CachesModule(apiClient: self.apiClient)
-        self.files = FilesModule(apiClient: self.apiClient)
-        self.operations = OperationsModule(apiClient: self.apiClient)
-        self.authTokens = TokensModule(apiClient: self.apiClient)
-        self.tunings = TuningsModule(apiClient: self.apiClient)
-        self.fileSearchStores = FileSearchStoresModule(apiClient: self.apiClient)
+
+        // Wire the real resource modules from Wave 4 / 6.
+        self.models = Models(apiClient: self.apiClient)
+        self.live = Live(apiClient: self.apiClient, auth: auth)
+        self.batches = Batches(apiClient: self.apiClient)
+        self.chats = Chats(modelsModule: self.models, apiClient: self.apiClient)
+        self.caches = Caches(apiClient: self.apiClient)
+        self.files = Files(apiClient: self.apiClient)
+        self.operations = Operations(apiClient: self.apiClient)
+        self.authTokens = Tokens(apiClient: self.apiClient)
+        self.tunings = Tunings(apiClient: self.apiClient)
+        self.fileSearchStores = FileSearchStores(apiClient: self.apiClient)
+    }
+
+    /// JS-style convenience: `GoogleGenAI(apiKey: "X")`.
+    public convenience init(
+        apiKey: String? = nil,
+        enterprise: Bool? = nil,
+        vertexai: Bool? = nil,
+        project: String? = nil,
+        location: String? = nil,
+        apiVersion: String? = nil,
+        googleAuthOptions: GoogleAuthOptions? = nil,
+        httpOptions: HttpOptions? = nil
+    ) throws {
+        try self.init(options: GoogleGenAIOptions(
+            enterprise: enterprise,
+            vertexai: vertexai,
+            project: project,
+            location: location,
+            apiKey: apiKey,
+            apiVersion: apiVersion,
+            googleAuthOptions: googleAuthOptions,
+            httpOptions: httpOptions
+        ))
+    }
+}
+
+private func parseBool(_ s: String) -> Bool? {
+    switch s.lowercased() {
+    case "true", "1", "yes": return true
+    case "false", "0", "no", "": return false
+    default: return nil
     }
 }
 
