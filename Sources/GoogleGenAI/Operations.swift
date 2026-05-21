@@ -3,29 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_operations_converters.js
-internal func getOperationParametersToVertex(
-    _ fromObject: GetOperationParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getOperationParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_operations_converters.js
-internal func getOperationParametersToMldev(
-    _ fromObject: GetOperationParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getOperationParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_operations_converters.js
-internal func fetchPredictOperationParametersToVertex(
-    _ fromObject: FetchPredictOperationParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (fetchPredictOperationParametersToVertex)")
-}
-
 // MARK: - Operations
 
 public final class Operations: BaseModule, @unchecked Sendable {
@@ -125,7 +102,11 @@ public final class Operations: BaseModule, @unchecked Sendable {
         var path = ""
         var queryParams: [String: String] = [:]
         if self.apiClient.isVertexAI() {
-            var body = getOperationParametersToVertex(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getOperationParametersToVertex(
+                apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -146,7 +127,11 @@ public final class Operations: BaseModule, @unchecked Sendable {
             if case .object(let obj) = json { return obj }
             return [:]
         } else {
-            var body = getOperationParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getOperationParametersToMldev(
+                apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -175,7 +160,11 @@ public final class Operations: BaseModule, @unchecked Sendable {
         var path = ""
         var queryParams: [String: String] = [:]
         if self.apiClient.isVertexAI() {
-            var body = fetchPredictOperationParametersToVertex(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try fetchPredictOperationParametersToVertex(
+                apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }

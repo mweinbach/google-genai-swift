@@ -3,16 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_tokens_converters.js
-internal func createAuthTokenParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateAuthTokenParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createAuthTokenParametersToMldev)")
-}
-
 // MARK: - Helpers
 
 /// Returns a comma-separated list of field masks from a given object.
@@ -161,7 +151,11 @@ public final class Tokens: BaseModule, @unchecked Sendable {
                 "The client.tokens.create method is only supported by the Gemini Developer API."
             )
         } else {
-            var body = createAuthTokenParametersToMldev(self.apiClient, params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createAuthTokenParametersToMldev(
+                apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }

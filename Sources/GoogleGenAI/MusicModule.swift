@@ -3,22 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_live_converters.js
-internal func liveMusicSetWeightedPromptsParametersToMldev(
-    _ fromObject: LiveMusicSetWeightedPromptsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (liveMusicSetWeightedPromptsParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_live_converters.js
-internal func liveMusicSetConfigParametersToMldev(
-    _ fromObject: LiveMusicSetConfigParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (liveMusicSetConfigParametersToMldev)")
-}
-
 // MARK: - WebSocket placeholder protocols (TODO Wave 6)
 
 /// Placeholder WebSocket protocol — replaced once `_websocket.ts` lands.
@@ -166,7 +150,11 @@ public final class MusicSession: @unchecked Sendable {
                 "Weighted prompts must be set and contain at least one entry."
             )
         }
-        let clientContent = liveMusicSetWeightedPromptsParametersToMldev(params)
+        let paramsDict = try jsonObject(params)
+        var parent: [String: JSONValue] = [:]
+        let clientContent = try liveMusicSetWeightedPromptsParametersToMldev(
+            apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+        )
         let message: [String: JSONValue] = ["clientContent": .object(clientContent)]
         self.conn.send(jsonValueObjectToString(message))
     }
@@ -176,7 +164,11 @@ public final class MusicSession: @unchecked Sendable {
     public func setMusicGenerationConfig(
         _ params: LiveMusicSetConfigParameters
     ) async throws {
-        let setConfigParameters = liveMusicSetConfigParametersToMldev(params)
+        let paramsDict = try jsonObject(params)
+        var parent: [String: JSONValue] = [:]
+        let setConfigParameters = try liveMusicSetConfigParametersToMldev(
+            apiClient: self.apiClient, fromObject: paramsDict, parentObject: &parent
+        )
         self.conn.send(jsonValueObjectToString(setConfigParameters))
     }
 

@@ -513,13 +513,23 @@ public final class ContentReferenceImage: Codable, @unchecked Sendable {
     }
 }
 
-// MARK: - Stubs for converter functions (see Wave 5)
+// MARK: - Reference-image → ReferenceImageAPIInternal helpers
+//
+// Mirrors the TS reference-image flatten step that consolidates per-class
+// config fields into a single shape the wire-format converter consumes.
+// The TS `referenceType` strings ("REFERENCE_TYPE_RAW", "_MASK", "_CONTROL",
+// "_STYLE", "_SUBJECT", "_CONTENT") are emitted here so downstream
+// converters can dispatch on them.
 
 internal func _rawReferenceImageToAPIInternal(
     referenceImage: Image?,
     referenceId: Double?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_RAW"
+    )
 }
 
 internal func _maskReferenceImageToAPIInternal(
@@ -527,7 +537,12 @@ internal func _maskReferenceImageToAPIInternal(
     referenceId: Double?,
     config: MaskReferenceConfig?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_MASK",
+        maskImageConfig: config
+    )
 }
 
 internal func _controlReferenceImageToAPIInternal(
@@ -535,7 +550,12 @@ internal func _controlReferenceImageToAPIInternal(
     referenceId: Double?,
     config: ControlReferenceConfig?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_CONTROL",
+        controlImageConfig: config
+    )
 }
 
 internal func _styleReferenceImageToAPIInternal(
@@ -543,7 +563,12 @@ internal func _styleReferenceImageToAPIInternal(
     referenceId: Double?,
     config: StyleReferenceConfig?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_STYLE",
+        styleImageConfig: config
+    )
 }
 
 internal func _subjectReferenceImageToAPIInternal(
@@ -551,12 +576,21 @@ internal func _subjectReferenceImageToAPIInternal(
     referenceId: Double?,
     config: SubjectReferenceConfig?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_SUBJECT",
+        subjectImageConfig: config
+    )
 }
 
 internal func _contentReferenceImageToAPIInternal(
     referenceImage: Image?,
     referenceId: Double?
 ) -> ReferenceImageAPIInternal {
-    fatalError("Not yet ported — see Wave 5")
+    ReferenceImageAPIInternal(
+        referenceImage: referenceImage,
+        referenceId: referenceId,
+        referenceType: "REFERENCE_TYPE_CONTENT"
+    )
 }

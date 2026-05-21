@@ -3,32 +3,72 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
+// MARK: - Converter shims
+//
+// Local-typed wrappers that bridge strongly-typed parameter structs to the
+// JSON-based converter functions in `Converters/DocumentsConverters.swift`.
 
-// TODO Wave 5: Port from ./converters/_documents_converters.js
-internal func getDocumentParametersToMldev(
+private func _docObject<T: Encodable>(_ value: T) throws -> [String: JSONValue] {
+    return try jsonObject(value)
+}
+
+private func _docAsObject(_ value: JSONValue) -> [String: JSONValue] {
+    if case .object(let o) = value { return o }
+    return [:]
+}
+
+private func _docMerge(_ dst: inout [String: JSONValue], _ src: [String: JSONValue]) {
+    for (k, v) in src { dst[k] = v }
+}
+
+internal func getDocumentParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: GetDocumentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getDocumentParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _docObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try getDocumentParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _docMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_documents_converters.js
-internal func deleteDocumentParametersToMldev(
+internal func deleteDocumentParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: DeleteDocumentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteDocumentParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _docObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try deleteDocumentParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _docMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_documents_converters.js
-internal func listDocumentsParametersToMldev(
+internal func listDocumentsParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: ListDocumentsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listDocumentsParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _docObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try listDocumentsParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _docMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_documents_converters.js
-internal func listDocumentsResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listDocumentsResponseFromMldev)")
+internal func listDocumentsResponseFromMldevShim(
+    _ apiClient: ApiClient,
+    _ fromObject: JSONValue
+) throws -> [String: JSONValue] {
+    let dict = _docAsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    return try listDocumentsResponseFromMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
 }
 
 // MARK: - Documents
@@ -75,7 +115,7 @@ public final class Documents: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = getDocumentParametersToMldev(params)
+            var body = try getDocumentParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -109,7 +149,7 @@ public final class Documents: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = deleteDocumentParametersToMldev(params)
+            var body = try deleteDocumentParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -142,7 +182,7 @@ public final class Documents: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = listDocumentsParametersToMldev(params)
+            var body = try listDocumentsParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{parent}/documents", urlMap)
             } else {
@@ -162,7 +202,7 @@ public final class Documents: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listDocumentsResponseFromMldev(apiResponse)
+            let resp = try listDocumentsResponseFromMldevShim(self.apiClient, apiResponse)
             return try decodeFromJSONObject(ListDocumentsResponse.self, resp)
         }
     }

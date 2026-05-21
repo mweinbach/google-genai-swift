@@ -3,63 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func listFilesParametersToMldev(
-    _ fromObject: ListFilesParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listFilesParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func listFilesResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listFilesResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func createFileParametersToMldev(
-    _ fromObject: CreateFileParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createFileParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func createFileResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createFileResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func getFileParametersToMldev(
-    _ fromObject: GetFileParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getFileParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func deleteFileParametersToMldev(
-    _ fromObject: DeleteFileParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteFileParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func deleteFileResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteFileResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func internalRegisterFilesParametersToMldev(
-    _ fromObject: InternalRegisterFilesParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (internalRegisterFilesParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_files_converters.js
-internal func registerFilesResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (registerFilesResponseFromMldev)")
-}
-
 // MARK: - Files
 
 public final class Files: BaseModule, @unchecked Sendable {
@@ -132,7 +75,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = listFilesParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listFilesParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("files", urlMap)
             } else {
@@ -152,7 +101,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listFilesResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listFilesResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(ListFilesResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
@@ -170,7 +125,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = createFileParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createFileParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("upload/v1beta/files", urlMap)
             } else {
@@ -190,7 +151,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = createFileResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try createFileResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(CreateFileResponse.self, resp)
         }
     }
@@ -205,7 +172,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = getFileParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getFileParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("files/{file}", urlMap)
             } else {
@@ -241,7 +214,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = deleteFileParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try deleteFileParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("files/{file}", urlMap)
             } else {
@@ -261,7 +240,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = deleteFileResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try deleteFileResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(DeleteFileResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
@@ -279,7 +264,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = internalRegisterFilesParametersToMldev(params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try internalRegisterFilesParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("files:register", urlMap)
             } else {
@@ -299,7 +290,13 @@ public final class Files: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = registerFilesResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try registerFilesResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(RegisterFilesResponse.self, resp)
         }
     }

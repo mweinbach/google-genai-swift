@@ -3,124 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func createBatchJobParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createBatchJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func createBatchJobParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createBatchJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func createEmbeddingsBatchJobParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateEmbeddingsBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createEmbeddingsBatchJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func getBatchJobParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: GetBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getBatchJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func getBatchJobParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: GetBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getBatchJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func cancelBatchJobParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: CancelBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelBatchJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func cancelBatchJobParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: CancelBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelBatchJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func listBatchJobsParametersToMldev(
-    _ fromObject: ListBatchJobsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listBatchJobsParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func listBatchJobsParametersToVertex(
-    _ fromObject: ListBatchJobsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listBatchJobsParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func deleteBatchJobParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: DeleteBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteBatchJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func deleteBatchJobParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: DeleteBatchJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteBatchJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func batchJobFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (batchJobFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func batchJobFromVertex(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (batchJobFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func listBatchJobsResponseFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listBatchJobsResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func listBatchJobsResponseFromVertex(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listBatchJobsResponseFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func deleteResourceJobFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteResourceJobFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_batches_converters.js
-internal func deleteResourceJobFromVertex(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteResourceJobFromVertex)")
-}
-
 // MARK: - Batches
 
 public final class Batches: BaseModule, @unchecked Sendable {
@@ -174,11 +56,17 @@ public final class Batches: BaseModule, @unchecked Sendable {
         return try await self.createEmbeddingsInternal(params)
     }
 
-    // Helper function to handle inlined generate content requests
-    private func createInlinedGenerateContentRequest(
+    // Helper function to handle inlined generate content requests (used by external callers)
+    internal func createInlinedGenerateContentRequest(
         _ params: CreateBatchJobParameters
     ) throws -> (path: String, body: [String: JSONValue]) {
-        var body = createBatchJobParametersToMldev(self.apiClient, params)
+        let paramsDict = try jsonObject(params)
+        var parent: [String: JSONValue] = [:]
+        var body = try createBatchJobParametersToMldev(
+            apiClient: self.apiClient,
+            fromObject: paramsDict,
+            parentObject: &parent
+        )
 
         guard case .object(let urlParams) = body["_url"] ?? .null else {
             throw GenAIError.runtime("Missing _url in createInlinedGenerateContentRequest body.")
@@ -277,10 +165,6 @@ public final class Batches: BaseModule, @unchecked Sendable {
             } else if let bigqueryUri = bigqueryUri {
                 newConfig.dest = .string("\(bigqueryUri)_dest_\(timestampStr)")
             } else {
-                // Mirror TS: throw Error. We cannot throw from here without changing signature;
-                // Swift port mirrors by setting a sentinel and crashing later. Match TS behavior:
-                // throw via fatalError to surface the misconfiguration.
-                // Note: TS throws a new Error; mirror with a runtime trap to preserve semantics.
                 preconditionFailure(
                     "Unsupported source for Gemini Enterprise Agent Platform (previously known as Vertex AI): No GCS or BigQuery URI found."
                 )
@@ -295,8 +179,14 @@ public final class Batches: BaseModule, @unchecked Sendable {
     ) async throws -> BatchJob {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = createBatchJobParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createBatchJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batchPredictionJobs", urlMap)
             } else {
@@ -316,10 +206,21 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = batchJobFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try batchJobFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(BatchJob.self, resp)
         } else {
-            var body = createBatchJobParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createBatchJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{model}:batchGenerateContent", urlMap)
             } else {
@@ -339,7 +240,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = batchJobFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try batchJobFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(BatchJob.self, resp)
         }
     }
@@ -356,7 +263,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = createEmbeddingsBatchJobParametersToMldev(self.apiClient, params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createEmbeddingsBatchJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{model}:asyncBatchEmbedContent", urlMap)
             } else {
@@ -376,7 +289,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = batchJobFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try batchJobFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(BatchJob.self, resp)
         }
     }
@@ -385,8 +304,14 @@ public final class Batches: BaseModule, @unchecked Sendable {
     public func get(_ params: GetBatchJobParameters) async throws -> BatchJob {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = getBatchJobParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getBatchJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batchPredictionJobs/{name}", urlMap)
             } else {
@@ -406,10 +331,21 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = batchJobFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try batchJobFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(BatchJob.self, resp)
         } else {
-            var body = getBatchJobParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getBatchJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batches/{name}", urlMap)
             } else {
@@ -429,7 +365,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = batchJobFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try batchJobFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(BatchJob.self, resp)
         }
     }
@@ -438,8 +380,14 @@ public final class Batches: BaseModule, @unchecked Sendable {
     public func cancel(_ params: CancelBatchJobParameters) async throws {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = cancelBatchJobParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try cancelBatchJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batchPredictionJobs/{name}:cancel", urlMap)
             } else {
@@ -459,7 +407,12 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
         } else {
-            var body = cancelBatchJobParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try cancelBatchJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batches/{name}:cancel", urlMap)
             } else {
@@ -486,8 +439,14 @@ public final class Batches: BaseModule, @unchecked Sendable {
     ) async throws -> ListBatchJobsResponse {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = listBatchJobsParametersToVertex(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listBatchJobsParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batchPredictionJobs", urlMap)
             } else {
@@ -507,12 +466,23 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listBatchJobsResponseFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listBatchJobsResponseFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(ListBatchJobsResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
         } else {
-            var body = listBatchJobsParametersToMldev(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listBatchJobsParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batches", urlMap)
             } else {
@@ -532,7 +502,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listBatchJobsResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listBatchJobsResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(ListBatchJobsResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
@@ -545,8 +521,14 @@ public final class Batches: BaseModule, @unchecked Sendable {
     ) async throws -> DeleteResourceJob {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = deleteBatchJobParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try deleteBatchJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batchPredictionJobs/{name}", urlMap)
             } else {
@@ -566,10 +548,21 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = deleteResourceJobFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try deleteResourceJobFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(DeleteResourceJob.self, resp)
         } else {
-            var body = deleteBatchJobParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try deleteBatchJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("batches/{name}", urlMap)
             } else {
@@ -589,7 +582,13 @@ public final class Batches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = deleteResourceJobFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try deleteResourceJobFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             return try decodeFromJSONObject(DeleteResourceJob.self, resp)
         }
     }
@@ -624,4 +623,10 @@ internal func extractStringMap(_ value: JSONValue?) -> [String: String] {
 internal func decodeFromJSONObject<T: Decodable>(_ type: T.Type, _ obj: [String: JSONValue]) throws -> T {
     let data = try JSONEncoder().encode(JSONValue.object(obj))
     return try JSONDecoder().decode(T.self, from: data)
+}
+
+/// Converts a `JSONValue` to a dictionary if it is an object; otherwise returns an empty dict.
+internal func jsonValueAsDict(_ value: JSONValue) -> [String: JSONValue] {
+    if case .object(let o) = value { return o }
+    return [:]
 }

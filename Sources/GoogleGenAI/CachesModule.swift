@@ -3,114 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func createCachedContentParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createCachedContentParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func createCachedContentParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: CreateCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createCachedContentParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func getCachedContentParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: GetCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getCachedContentParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func getCachedContentParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: GetCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getCachedContentParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func deleteCachedContentParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: DeleteCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteCachedContentParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func deleteCachedContentParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: DeleteCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteCachedContentParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func updateCachedContentParametersToMldev(
-    _ apiClient: ApiClient,
-    _ fromObject: UpdateCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (updateCachedContentParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func updateCachedContentParametersToVertex(
-    _ apiClient: ApiClient,
-    _ fromObject: UpdateCachedContentParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (updateCachedContentParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func listCachedContentsParametersToMldev(
-    _ fromObject: ListCachedContentsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listCachedContentsParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func listCachedContentsParametersToVertex(
-    _ fromObject: ListCachedContentsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listCachedContentsParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func deleteCachedContentResponseFromMldev(
-    _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteCachedContentResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func deleteCachedContentResponseFromVertex(
-    _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteCachedContentResponseFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func listCachedContentsResponseFromMldev(
-    _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listCachedContentsResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_caches_converters.js
-internal func listCachedContentsResponseFromVertex(
-    _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listCachedContentsResponseFromVertex)")
-}
-
 // MARK: - Caches
 
 public final class Caches: BaseModule, @unchecked Sendable {
@@ -145,8 +37,14 @@ public final class Caches: BaseModule, @unchecked Sendable {
     ) async throws -> CachedContent {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = createCachedContentParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createCachedContentParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("cachedContents", urlMap)
             } else {
@@ -168,7 +66,12 @@ public final class Caches: BaseModule, @unchecked Sendable {
             let apiResponse = try httpResponse.json()
             return try decodeFromJSONValue(CachedContent.self, apiResponse)
         } else {
-            var body = createCachedContentParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createCachedContentParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("cachedContents", urlMap)
             } else {
@@ -198,8 +101,14 @@ public final class Caches: BaseModule, @unchecked Sendable {
     ) async throws -> CachedContent {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = getCachedContentParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getCachedContentParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -221,7 +130,12 @@ public final class Caches: BaseModule, @unchecked Sendable {
             let apiResponse = try httpResponse.json()
             return try decodeFromJSONValue(CachedContent.self, apiResponse)
         } else {
-            var body = getCachedContentParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getCachedContentParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -251,8 +165,14 @@ public final class Caches: BaseModule, @unchecked Sendable {
     ) async throws -> DeleteCachedContentResponse {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = deleteCachedContentParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try deleteCachedContentParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -272,12 +192,23 @@ public final class Caches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = deleteCachedContentResponseFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try deleteCachedContentResponseFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(DeleteCachedContentResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
         } else {
-            var body = deleteCachedContentParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try deleteCachedContentParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -297,7 +228,13 @@ public final class Caches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = deleteCachedContentResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try deleteCachedContentResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(DeleteCachedContentResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
@@ -310,8 +247,14 @@ public final class Caches: BaseModule, @unchecked Sendable {
     ) async throws -> CachedContent {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = updateCachedContentParametersToVertex(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try updateCachedContentParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -333,7 +276,12 @@ public final class Caches: BaseModule, @unchecked Sendable {
             let apiResponse = try httpResponse.json()
             return try decodeFromJSONValue(CachedContent.self, apiResponse)
         } else {
-            var body = updateCachedContentParametersToMldev(self.apiClient, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try updateCachedContentParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -362,8 +310,14 @@ public final class Caches: BaseModule, @unchecked Sendable {
     ) async throws -> ListCachedContentsResponse {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = listCachedContentsParametersToVertex(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listCachedContentsParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("cachedContents", urlMap)
             } else {
@@ -383,12 +337,23 @@ public final class Caches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listCachedContentsResponseFromVertex(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listCachedContentsResponseFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(ListCachedContentsResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed
         } else {
-            var body = listCachedContentsParametersToMldev(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listCachedContentsParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("cachedContents", urlMap)
             } else {
@@ -408,7 +373,13 @@ public final class Caches: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listCachedContentsResponseFromMldev(apiResponse)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listCachedContentsResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typed = try decodeFromJSONObject(ListCachedContentsResponse.self, resp)
             typed.sdkHttpResponse = HttpResponse(headers: httpResponse.headers, bodyData: nil)
             return typed

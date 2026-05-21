@@ -43,14 +43,6 @@ private let DEFAULT_RETRY_HTTP_STATUS_CODES: Set<Int> = [
 public protocol GeminiNextGenAPIClientAdapter: Sendable {
 }
 
-/// Converter stub — real implementation arrives in Wave 5 (`converters/_filesearchstores_converters.ts`).
-internal func uploadToFileSearchStoreConfigToMldev(
-    _ fromObject: UploadToFileSearchStoreConfig,
-    _ parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (uploadToFileSearchStoreConfigToMldev)")
-}
-
 // MARK: - ApiClientInitOptions
 
 /// Options for initializing the ApiClient.
@@ -915,7 +907,10 @@ public final class ApiClient: GeminiNextGenAPIClientAdapter, @unchecked Sendable
         let fileName = self.getFileName(file)
         var body: [String: JSONValue] = [:]
         if let config = config {
-            _ = uploadToFileSearchStoreConfigToMldev(config, &body)
+            let configDict = try jsonObject(config)
+            _ = try uploadToFileSearchStoreConfigToMldev(
+                apiClient: self, fromObject: configDict, parentObject: &body
+            )
         }
         let uploadUrl = try await self.fetchUploadUrl(
             path: path,

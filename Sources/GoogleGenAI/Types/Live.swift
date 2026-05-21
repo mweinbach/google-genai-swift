@@ -634,7 +634,7 @@ public struct StreamTranslationConfig: Codable, Sendable {
 }
 
 /// Session config for the API connection.
-public struct LiveConnectConfig: Sendable {
+public struct LiveConnectConfig: Codable, Sendable {
     /// Used to override HTTP request options.
     public var httpOptions: HttpOptions?
     /// Abort signal which can be used to cancel the request.

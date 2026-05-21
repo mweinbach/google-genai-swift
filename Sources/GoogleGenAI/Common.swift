@@ -292,3 +292,21 @@ private func _moveValueRecursive(
         data = .object(obj)
     }
 }
+
+// MARK: - Strong-type ↔ JSON dict bridging helpers
+
+/// Encode any Encodable to a [String: JSONValue] dictionary via JSON round-trip.
+internal func jsonObject<T: Encodable>(_ value: T) throws -> [String: JSONValue] {
+    let data = try JSONEncoder().encode(value)
+    let decoded = try JSONDecoder().decode(JSONValue.self, from: data)
+    guard case .object(let obj) = decoded else {
+        throw GenAIError.runtime("Expected JSON object after encoding \(T.self)")
+    }
+    return obj
+}
+
+/// Decode a [String: JSONValue] dictionary to a Decodable type via JSON round-trip.
+internal func jsonDecode<T: Decodable>(_ type: T.Type, from dict: [String: JSONValue]) throws -> T {
+    let data = try JSONEncoder().encode(JSONValue.object(dict))
+    return try JSONDecoder().decode(T.self, from: data)
+}

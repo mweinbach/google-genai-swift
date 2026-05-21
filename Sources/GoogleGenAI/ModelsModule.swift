@@ -3,267 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5 — `converters/_models_converters.ts`)
-//
-// These functions are being ported in parallel. Real implementations land in
-// `Sources/GoogleGenAI/Converters/ModelsConverters.swift`. Each stub mirrors
-// the TS call shape `converters.foo(apiClient, fromObject, parentObject)`.
-
-internal func generateContentParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: GenerateContentParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateContentParametersToMldev)") }
-
-internal func generateContentParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: GenerateContentParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateContentParametersToVertex)") }
-
-internal func generateContentResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateContentParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateContentResponseFromMldev)") }
-
-internal func generateContentResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateContentParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateContentResponseFromVertex)") }
-
-internal func embedContentParametersPrivateToMldev(
-    apiClient: ApiClient,
-    fromObject: EmbedContentParametersPrivate,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (embedContentParametersPrivateToMldev)") }
-
-internal func embedContentParametersPrivateToVertex(
-    apiClient: ApiClient,
-    fromObject: EmbedContentParametersPrivate,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (embedContentParametersPrivateToVertex)") }
-
-internal func embedContentResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: EmbedContentParametersPrivate
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (embedContentResponseFromMldev)") }
-
-internal func embedContentResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: EmbedContentParametersPrivate
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (embedContentResponseFromVertex)") }
-
-internal func generateImagesParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: GenerateImagesParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateImagesParametersToMldev)") }
-
-internal func generateImagesParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: GenerateImagesParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateImagesParametersToVertex)") }
-
-internal func generateImagesResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateImagesParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateImagesResponseFromMldev)") }
-
-internal func generateImagesResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateImagesParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateImagesResponseFromVertex)") }
-
-internal func editImageParametersInternalToVertex(
-    apiClient: ApiClient,
-    fromObject: EditImageParametersInternal,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (editImageParametersInternalToVertex)") }
-
-internal func editImageResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: EditImageParametersInternal
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (editImageResponseFromVertex)") }
-
-internal func upscaleImageAPIParametersInternalToVertex(
-    apiClient: ApiClient,
-    fromObject: UpscaleImageAPIParametersInternal,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (upscaleImageAPIParametersInternalToVertex)") }
-
-internal func upscaleImageResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: UpscaleImageAPIParametersInternal
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (upscaleImageResponseFromVertex)") }
-
-internal func recontextImageParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: RecontextImageParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (recontextImageParametersToVertex)") }
-
-internal func recontextImageResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: RecontextImageParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (recontextImageResponseFromVertex)") }
-
-internal func segmentImageParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: SegmentImageParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (segmentImageParametersToVertex)") }
-
-internal func segmentImageResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: SegmentImageParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (segmentImageResponseFromVertex)") }
-
-internal func getModelParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: GetModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (getModelParametersToMldev)") }
-
-internal func getModelParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: GetModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (getModelParametersToVertex)") }
-
-internal func modelFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: Any?
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (modelFromMldev)") }
-
-internal func modelFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: Any?
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (modelFromVertex)") }
-
-internal func listModelsParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: ListModelsParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (listModelsParametersToMldev)") }
-
-internal func listModelsParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: ListModelsParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (listModelsParametersToVertex)") }
-
-internal func listModelsResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: ListModelsParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (listModelsResponseFromMldev)") }
-
-internal func listModelsResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: ListModelsParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (listModelsResponseFromVertex)") }
-
-internal func updateModelParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: UpdateModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (updateModelParametersToMldev)") }
-
-internal func updateModelParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: UpdateModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (updateModelParametersToVertex)") }
-
-internal func deleteModelParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: DeleteModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (deleteModelParametersToMldev)") }
-
-internal func deleteModelParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: DeleteModelParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (deleteModelParametersToVertex)") }
-
-internal func deleteModelResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: DeleteModelParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (deleteModelResponseFromMldev)") }
-
-internal func deleteModelResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: DeleteModelParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (deleteModelResponseFromVertex)") }
-
-internal func countTokensParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: CountTokensParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (countTokensParametersToMldev)") }
-
-internal func countTokensParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: CountTokensParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (countTokensParametersToVertex)") }
-
-internal func countTokensResponseFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: CountTokensParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (countTokensResponseFromMldev)") }
-
-internal func countTokensResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: CountTokensParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (countTokensResponseFromVertex)") }
-
-internal func computeTokensParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: ComputeTokensParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (computeTokensParametersToVertex)") }
-
-internal func computeTokensResponseFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: ComputeTokensParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (computeTokensResponseFromVertex)") }
-
-internal func generateVideosParametersToMldev(
-    apiClient: ApiClient,
-    fromObject: GenerateVideosParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateVideosParametersToMldev)") }
-
-internal func generateVideosParametersToVertex(
-    apiClient: ApiClient,
-    fromObject: GenerateVideosParameters,
-    parentObject: inout [String: JSONValue]
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateVideosParametersToVertex)") }
-
-internal func generateVideosOperationFromMldev(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateVideosParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateVideosOperationFromMldev)") }
-
-internal func generateVideosOperationFromVertex(
-    _ fromObject: [String: JSONValue],
-    _ parentObject: GenerateVideosParameters
-) -> [String: JSONValue] { fatalError("Not yet ported — see Wave 5 (generateVideosOperationFromVertex)") }
-
-// MARK: - MCP stubs (Wave 9 — `mcp/_mcp.ts`)
-
-internal enum MCP {
-    static func hasMcpToolUsage(_ tools: [ToolUnion]) -> Bool {
-        fatalError("Not yet ported — see Wave 9 (mcp.hasMcpToolUsage)")
-    }
-
-    static func setMcpUsageHeader(_ headers: inout [String: String]) {
-        fatalError("Not yet ported — see Wave 9 (mcp.setMcpUsageHeader)")
-    }
-}
-
 // MARK: - Models
 
 /// Models module surfaces `generateContent`, `generateContentStream`,
@@ -481,13 +220,13 @@ public final class Models: BaseModule, @unchecked Sendable {
         var newConfig = params.config ?? GenerateContentConfig()
         newConfig.tools = transformedTools
 
-        if let originalTools = params.config?.tools, MCP.hasMcpToolUsage(originalTools) {
+        if let originalTools = params.config?.tools, await hasMcpToolUsage(originalTools) {
             let headers = params.config?.httpOptions?.headers ?? [:]
             var newHeaders = headers
             if newHeaders.isEmpty {
                 newHeaders = apiClient.getDefaultHeaders()
             }
-            MCP.setMcpUsageHeader(&newHeaders)
+            setMcpUsageHeader(&newHeaders)
             var httpOptions = params.config?.httpOptions ?? HttpOptions()
             httpOptions.headers = newHeaders
             newConfig.httpOptions = httpOptions
@@ -795,16 +534,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var queryParams: [String: String] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = generateContentParametersToVertex(
+            body = try generateContentParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = generateContentParametersToMldev(
+            body = try generateContentParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -828,9 +568,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from generateContent")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? generateContentResponseFromVertex(jsonObj, params)
-            : generateContentResponseFromMldev(jsonObj, params)
+            ? try generateContentResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try generateContentResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(GenerateContentResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -846,16 +587,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var queryParams: [String: String] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = generateContentParametersToVertex(
+            body = try generateContentParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = generateContentParametersToMldev(
+            body = try generateContentParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -876,15 +618,17 @@ public final class Models: BaseModule, @unchecked Sendable {
             abortSignal: params.config?.abortSignal
         ))
 
+        let apiClient = self.apiClient
         return AsyncThrowingStream { continuation in
             let task = Task {
                 do {
                     for try await chunk in upstream {
                         let jsonResp = try chunk.json()
                         guard case .object(let obj) = jsonResp else { continue }
+                        var respParent: [String: JSONValue] = [:]
                         let respDict = isVertex
-                            ? generateContentResponseFromVertex(obj, params)
-                            : generateContentResponseFromMldev(obj, params)
+                            ? try generateContentResponseFromVertex(apiClient: apiClient, fromObject: obj, parentObject: &respParent)
+                            : try generateContentResponseFromMldev(apiClient: apiClient, fromObject: obj, parentObject: &respParent)
                         let typedResp = try decode(GenerateContentResponse.self, from: respDict)
                         typedResp.sdkHttpResponse = HttpResponse(headers: chunk.headers)
                         continuation.yield(typedResp)
@@ -908,10 +652,11 @@ public final class Models: BaseModule, @unchecked Sendable {
         var queryParams: [String: String] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = embedContentParametersPrivateToVertex(
+            body = try embedContentParametersPrivateToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
             let endpointUrl = tIsVertexEmbedContentModel(params.model)
@@ -920,9 +665,9 @@ public final class Models: BaseModule, @unchecked Sendable {
             let urlMap = extractUrlMap(body["_url"])
             path = try formatMap(endpointUrl, urlMap)
         } else {
-            body = embedContentParametersPrivateToMldev(
+            body = try embedContentParametersPrivateToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
             let urlMap = extractUrlMap(body["_url"])
@@ -946,9 +691,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from embedContent")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? embedContentResponseFromVertex(jsonObj, params)
-            : embedContentResponseFromMldev(jsonObj, params)
+            ? try embedContentResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try embedContentResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(EmbedContentResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -964,16 +710,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var queryParams: [String: String] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = generateImagesParametersToVertex(
+            body = try generateImagesParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = generateImagesParametersToMldev(
+            body = try generateImagesParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -997,9 +744,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from generateImages")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? generateImagesResponseFromVertex(jsonObj, params)
-            : generateImagesResponseFromMldev(jsonObj, params)
+            ? try generateImagesResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try generateImagesResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(GenerateImagesResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1016,9 +764,10 @@ public final class Models: BaseModule, @unchecked Sendable {
             )
         }
         var parentObject: [String: JSONValue] = [:]
-        var body = editImageParametersInternalToVertex(
+        let paramsDict = try jsonObject(params)
+        var body = try editImageParametersInternalToVertex(
             apiClient: apiClient,
-            fromObject: params,
+            fromObject: paramsDict,
             parentObject: &parentObject
         )
         let urlMap = extractUrlMap(body["_url"])
@@ -1041,7 +790,8 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from editImage")
         }
-        let respDict = editImageResponseFromVertex(jsonObj, params)
+        var respParent: [String: JSONValue] = [:]
+        let respDict = try editImageResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(EditImageResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1058,9 +808,10 @@ public final class Models: BaseModule, @unchecked Sendable {
             )
         }
         var parentObject: [String: JSONValue] = [:]
-        var body = upscaleImageAPIParametersInternalToVertex(
+        let paramsDict = try jsonObject(params)
+        var body = try upscaleImageAPIParametersInternalToVertex(
             apiClient: apiClient,
-            fromObject: params,
+            fromObject: paramsDict,
             parentObject: &parentObject
         )
         let urlMap = extractUrlMap(body["_url"])
@@ -1083,7 +834,8 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from upscaleImage")
         }
-        let respDict = upscaleImageResponseFromVertex(jsonObj, params)
+        var respParent: [String: JSONValue] = [:]
+        let respDict = try upscaleImageResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(UpscaleImageResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1101,9 +853,10 @@ public final class Models: BaseModule, @unchecked Sendable {
             )
         }
         var parentObject: [String: JSONValue] = [:]
-        var body = recontextImageParametersToVertex(
+        let paramsDict = try jsonObject(params)
+        var body = try recontextImageParametersToVertex(
             apiClient: apiClient,
-            fromObject: params,
+            fromObject: paramsDict,
             parentObject: &parentObject
         )
         let urlMap = extractUrlMap(body["_url"])
@@ -1126,7 +879,8 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from recontextImage")
         }
-        let respDict = recontextImageResponseFromVertex(jsonObj, params)
+        var respParent: [String: JSONValue] = [:]
+        let respDict = try recontextImageResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         return try decode(RecontextImageResponse.self, from: respDict)
     }
 
@@ -1142,9 +896,10 @@ public final class Models: BaseModule, @unchecked Sendable {
             )
         }
         var parentObject: [String: JSONValue] = [:]
-        var body = segmentImageParametersToVertex(
+        let paramsDict = try jsonObject(params)
+        var body = try segmentImageParametersToVertex(
             apiClient: apiClient,
-            fromObject: params,
+            fromObject: paramsDict,
             parentObject: &parentObject
         )
         let urlMap = extractUrlMap(body["_url"])
@@ -1167,7 +922,8 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from segmentImage")
         }
-        let respDict = segmentImageResponseFromVertex(jsonObj, params)
+        var respParent: [String: JSONValue] = [:]
+        let respDict = try segmentImageResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         return try decode(SegmentImageResponse.self, from: respDict)
     }
 
@@ -1178,16 +934,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var parentObject: [String: JSONValue] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = getModelParametersToVertex(
+            body = try getModelParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = getModelParametersToMldev(
+            body = try getModelParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -1211,9 +968,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from get(model)")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? modelFromVertex(jsonObj, nil)
-            : modelFromMldev(jsonObj, nil)
+            ? try modelFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try modelFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         return try decode(Model.self, from: respDict)
     }
 
@@ -1225,16 +983,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var parentObject: [String: JSONValue] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = listModelsParametersToVertex(
+            body = try listModelsParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = listModelsParametersToMldev(
+            body = try listModelsParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -1258,9 +1017,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from list(models)")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? listModelsResponseFromVertex(jsonObj, params)
-            : listModelsResponseFromMldev(jsonObj, params)
+            ? try listModelsResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try listModelsResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(ListModelsResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1274,17 +1034,18 @@ public final class Models: BaseModule, @unchecked Sendable {
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
         let pathTemplate: String
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = updateModelParametersToVertex(
+            body = try updateModelParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
             pathTemplate = "{model}"
         } else {
-            body = updateModelParametersToMldev(
+            body = try updateModelParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
             pathTemplate = "{name}"
@@ -1309,9 +1070,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from update(model)")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? modelFromVertex(jsonObj, nil)
-            : modelFromMldev(jsonObj, nil)
+            ? try modelFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try modelFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         return try decode(Model.self, from: respDict)
     }
 
@@ -1324,16 +1086,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var parentObject: [String: JSONValue] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = deleteModelParametersToVertex(
+            body = try deleteModelParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = deleteModelParametersToMldev(
+            body = try deleteModelParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -1357,9 +1120,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from delete(model)")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? deleteModelResponseFromVertex(jsonObj, params)
-            : deleteModelResponseFromMldev(jsonObj, params)
+            ? try deleteModelResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try deleteModelResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(DeleteModelResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1374,16 +1138,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var parentObject: [String: JSONValue] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = countTokensParametersToVertex(
+            body = try countTokensParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = countTokensParametersToMldev(
+            body = try countTokensParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -1407,9 +1172,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from countTokens")
         }
+        var respParent: [String: JSONValue] = [:]
         let respDict = isVertex
-            ? countTokensResponseFromVertex(jsonObj, params)
-            : countTokensResponseFromMldev(jsonObj, params)
+            ? try countTokensResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : try countTokensResponseFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(CountTokensResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1427,9 +1193,10 @@ public final class Models: BaseModule, @unchecked Sendable {
             )
         }
         var parentObject: [String: JSONValue] = [:]
-        var body = computeTokensParametersToVertex(
+        let paramsDict = try jsonObject(params)
+        var body = try computeTokensParametersToVertex(
             apiClient: apiClient,
-            fromObject: params,
+            fromObject: paramsDict,
             parentObject: &parentObject
         )
         let urlMap = extractUrlMap(body["_url"])
@@ -1452,7 +1219,8 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from computeTokens")
         }
-        let respDict = computeTokensResponseFromVertex(jsonObj, params)
+        var respParent: [String: JSONValue] = [:]
+        let respDict = try computeTokensResponseFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
         let typedResp = try decode(ComputeTokensResponse.self, from: respDict)
         typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
         return typedResp
@@ -1466,16 +1234,17 @@ public final class Models: BaseModule, @unchecked Sendable {
         var parentObject: [String: JSONValue] = [:]
         var body: [String: JSONValue]
         let isVertex = apiClient.isVertexAI()
+        let paramsDict = try jsonObject(params)
         if isVertex {
-            body = generateVideosParametersToVertex(
+            body = try generateVideosParametersToVertex(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         } else {
-            body = generateVideosParametersToMldev(
+            body = try generateVideosParametersToMldev(
                 apiClient: apiClient,
-                fromObject: params,
+                fromObject: paramsDict,
                 parentObject: &parentObject
             )
         }
@@ -1499,9 +1268,10 @@ public final class Models: BaseModule, @unchecked Sendable {
         guard case .object(let jsonObj) = jsonResponse else {
             throw GenAIError.runtime("Expected object response from generateVideos")
         }
-        let respDict = isVertex
-            ? generateVideosOperationFromVertex(jsonObj, params)
-            : generateVideosOperationFromMldev(jsonObj, params)
+        var respParent: [String: JSONValue] = paramsDict
+        let respDict = try (isVertex
+            ? generateVideosOperationFromVertex(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent)
+            : generateVideosOperationFromMldev(apiClient: apiClient, fromObject: jsonObj, parentObject: &respParent))
         return try decode(GenerateVideosOperation.self, from: respDict)
     }
 }
@@ -1535,4 +1305,144 @@ private func extractQueryParams(_ value: JSONValue?) -> [String: String] {
         }
     }
     return out
+}
+
+// MARK: - JS-style convenience overloads
+//
+// Mirrors the JavaScript SDK's `ai.models.generateContent({ model, contents })`
+// call shape so Swift call sites can omit the explicit parameter struct.
+
+extension Models {
+    public func generateContent(
+        model: String,
+        contents: String,
+        config: GenerateContentConfig? = nil
+    ) async throws -> GenerateContentResponse {
+        try await generateContent(GenerateContentParameters(
+            model: model,
+            contents: .part(.text(contents)),
+            config: config
+        ))
+    }
+
+    public func generateContent(
+        model: String,
+        contents: [Content],
+        config: GenerateContentConfig? = nil
+    ) async throws -> GenerateContentResponse {
+        try await generateContent(GenerateContentParameters(
+            model: model,
+            contents: .contents(contents),
+            config: config
+        ))
+    }
+
+    public func generateContent(
+        model: String,
+        contents: Content,
+        config: GenerateContentConfig? = nil
+    ) async throws -> GenerateContentResponse {
+        try await generateContent(GenerateContentParameters(
+            model: model,
+            contents: .content(contents),
+            config: config
+        ))
+    }
+
+    public func generateContentStream(
+        model: String,
+        contents: String,
+        config: GenerateContentConfig? = nil
+    ) async throws -> AsyncThrowingStream<GenerateContentResponse, Error> {
+        try await generateContentStream(GenerateContentParameters(
+            model: model,
+            contents: .part(.text(contents)),
+            config: config
+        ))
+    }
+
+    public func generateContentStream(
+        model: String,
+        contents: [Content],
+        config: GenerateContentConfig? = nil
+    ) async throws -> AsyncThrowingStream<GenerateContentResponse, Error> {
+        try await generateContentStream(GenerateContentParameters(
+            model: model,
+            contents: .contents(contents),
+            config: config
+        ))
+    }
+
+    public func generateContentStream(
+        model: String,
+        contents: Content,
+        config: GenerateContentConfig? = nil
+    ) async throws -> AsyncThrowingStream<GenerateContentResponse, Error> {
+        try await generateContentStream(GenerateContentParameters(
+            model: model,
+            contents: .content(contents),
+            config: config
+        ))
+    }
+
+    public func embedContent(
+        model: String,
+        contents: String,
+        config: EmbedContentConfig? = nil
+    ) async throws -> EmbedContentResponse {
+        try await embedContent(EmbedContentParameters(
+            model: model,
+            contents: .part(.text(contents)),
+            config: config
+        ))
+    }
+
+    public func embedContent(
+        model: String,
+        contents: [String],
+        config: EmbedContentConfig? = nil
+    ) async throws -> EmbedContentResponse {
+        let parts: [PartUnion] = contents.map { .text($0) }
+        return try await embedContent(EmbedContentParameters(
+            model: model,
+            contents: .parts(parts),
+            config: config
+        ))
+    }
+
+    public func countTokens(
+        model: String,
+        contents: String,
+        config: CountTokensConfig? = nil
+    ) async throws -> CountTokensResponse {
+        try await countTokens(CountTokensParameters(
+            model: model,
+            contents: .part(.text(contents)),
+            config: config
+        ))
+    }
+
+    public func computeTokens(
+        model: String,
+        contents: String,
+        config: ComputeTokensConfig? = nil
+    ) async throws -> ComputeTokensResponse {
+        try await computeTokens(ComputeTokensParameters(
+            model: model,
+            contents: .part(.text(contents)),
+            config: config
+        ))
+    }
+
+    public func generateImages(
+        model: String,
+        prompt: String,
+        config: GenerateImagesConfig? = nil
+    ) async throws -> GenerateImagesResponse {
+        try await generateImages(GenerateImagesParameters(
+            model: model,
+            prompt: prompt,
+            config: config
+        ))
+    }
 }

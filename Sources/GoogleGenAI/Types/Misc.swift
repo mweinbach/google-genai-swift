@@ -61,7 +61,7 @@ public struct LiveMusicConnectParameters: Sendable {
 }
 
 /// Parameters for setting config for the live music API.
-public struct LiveMusicSetConfigParameters: Sendable {
+public struct LiveMusicSetConfigParameters: Codable, Sendable {
     /// Configuration for music generation.
     public var musicGenerationConfig: LiveMusicGenerationConfig
 
@@ -71,7 +71,7 @@ public struct LiveMusicSetConfigParameters: Sendable {
 }
 
 /// Parameters for setting weighted prompts for the live music API.
-public struct LiveMusicSetWeightedPromptsParameters: Sendable {
+public struct LiveMusicSetWeightedPromptsParameters: Codable, Sendable {
     /// A map of text prompts to weights to use for the generation request.
     public var weightedPrompts: [WeightedPrompt]
 
@@ -91,7 +91,7 @@ public struct AuthToken: Codable, Sendable {
 }
 
 /// Config for LiveConnectConstraints for Auth Token creation.
-public struct LiveConnectConstraints: Sendable {
+public struct LiveConnectConstraints: Codable, Sendable {
     /// ID of the model to configure in the ephemeral token for Live API.
     public var model: String?
     /// Configuration specific to Live API connections created using this token.
@@ -104,7 +104,7 @@ public struct LiveConnectConstraints: Sendable {
 }
 
 /// Optional parameters for creating an auth token.
-public struct CreateAuthTokenConfig: Sendable {
+public struct CreateAuthTokenConfig: Codable, Sendable {
     /// Used to override HTTP request options.
     public var httpOptions: HttpOptions?
     /// Abort signal which can be used to cancel the request.
@@ -140,7 +140,7 @@ public struct CreateAuthTokenConfig: Sendable {
 }
 
 /// Config for auth_tokens.create parameters.
-public struct CreateAuthTokenParameters: Sendable {
+public struct CreateAuthTokenParameters: Codable, Sendable {
     /// Optional parameters for the request.
     public var config: CreateAuthTokenConfig?
 

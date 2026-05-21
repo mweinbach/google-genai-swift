@@ -313,3 +313,45 @@ private func partListUnionToContentUnion(_ message: PartListUnion) -> ContentUni
         return .parts(arr)
     }
 }
+
+// MARK: - JS-style convenience overloads
+//
+// Mirrors the JavaScript SDK's `ai.chats.create({ model })` and
+// `chat.sendMessage({ message })` call shapes so Swift call sites can
+// omit the explicit parameter struct.
+
+extension Chats {
+    public func create(
+        model: String,
+        config: GenerateContentConfig? = nil,
+        history: [Content]? = nil
+    ) -> Chat {
+        return create(CreateChatParameters(
+            model: model,
+            config: config,
+            history: history
+        ))
+    }
+}
+
+extension Chat {
+    public func sendMessage(
+        _ text: String,
+        config: GenerateContentConfig? = nil
+    ) async throws -> GenerateContentResponse {
+        try await sendMessage(SendMessageParameters(
+            message: .single(.text(text)),
+            config: config
+        ))
+    }
+
+    public func sendMessageStream(
+        _ text: String,
+        config: GenerateContentConfig? = nil
+    ) async throws -> AsyncThrowingStream<GenerateContentResponse, Error> {
+        try await sendMessageStream(SendMessageParameters(
+            message: .single(.text(text)),
+            config: config
+        ))
+    }
+}

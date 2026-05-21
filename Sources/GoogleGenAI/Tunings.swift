@@ -3,120 +3,6 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func getTuningJobParametersToVertex(
-    _ fromObject: GetTuningJobParameters,
-    _ parentObject: GetTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getTuningJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func getTuningJobParametersToMldev(
-    _ fromObject: GetTuningJobParameters,
-    _ parentObject: GetTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getTuningJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func tuningJobFromVertex(
-    _ fromObject: JSONValue,
-    _ parentObject: GetTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (tuningJobFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func tuningJobFromMldev(
-    _ fromObject: JSONValue,
-    _ parentObject: GetTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (tuningJobFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func tuningJobFromVertex(
-    _ fromObject: JSONValue,
-    _ parentObject: CreateTuningJobParametersPrivate
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (tuningJobFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func listTuningJobsParametersToVertex(
-    _ fromObject: ListTuningJobsParameters,
-    _ parentObject: ListTuningJobsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listTuningJobsParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func listTuningJobsResponseFromVertex(
-    _ fromObject: JSONValue,
-    _ parentObject: ListTuningJobsParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listTuningJobsResponseFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func cancelTuningJobParametersToVertex(
-    _ fromObject: CancelTuningJobParameters,
-    _ parentObject: CancelTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelTuningJobParametersToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func cancelTuningJobParametersToMldev(
-    _ fromObject: CancelTuningJobParameters,
-    _ parentObject: CancelTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelTuningJobParametersToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func cancelTuningJobResponseFromVertex(
-    _ fromObject: JSONValue,
-    _ parentObject: CancelTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelTuningJobResponseFromVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func cancelTuningJobResponseFromMldev(
-    _ fromObject: JSONValue,
-    _ parentObject: CancelTuningJobParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (cancelTuningJobResponseFromMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func createTuningJobParametersPrivateToVertex(
-    _ fromObject: CreateTuningJobParametersPrivate,
-    _ parentObject: CreateTuningJobParametersPrivate
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createTuningJobParametersPrivateToVertex)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func createTuningJobParametersPrivateToMldev(
-    _ fromObject: CreateTuningJobParametersPrivate,
-    _ parentObject: CreateTuningJobParametersPrivate
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createTuningJobParametersPrivateToMldev)")
-}
-
-// TODO Wave 5: Port from ./converters/_tunings_converters.js
-internal func tuningOperationFromMldev(
-    _ fromObject: JSONValue,
-    _ parentObject: CreateTuningJobParametersPrivate
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (tuningOperationFromMldev)")
-}
-
 // MARK: - Tunings
 
 public final class Tunings: BaseModule, @unchecked Sendable {
@@ -171,7 +57,7 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 paramsPrivate.baseModel = nil
                 return try await self.tuneInternal(paramsPrivate)
             } else {
-                var paramsPrivate = CreateTuningJobParametersPrivate(
+                let paramsPrivate = CreateTuningJobParametersPrivate(
                     baseModel: params.baseModel,
                     trainingDataset: params.trainingDataset,
                     config: params.config
@@ -204,8 +90,14 @@ public final class Tunings: BaseModule, @unchecked Sendable {
     ) async throws -> TuningJob {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = getTuningJobParametersToVertex(params, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getTuningJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -223,12 +115,23 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = tuningJobFromVertex(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try tuningJobFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             var typedResp: TuningJob = try decodeFromJSONObject(TuningJob.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
         } else {
-            var body = getTuningJobParametersToMldev(params, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try getTuningJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -246,7 +149,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = tuningJobFromMldev(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try tuningJobFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             var typedResp: TuningJob = try decodeFromJSONObject(TuningJob.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
@@ -259,7 +168,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
         var path = ""
         var queryParams: [String: String] = [:]
         if self.apiClient.isVertexAI() {
-            var body = listTuningJobsParametersToVertex(params, params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try listTuningJobsParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -277,7 +192,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listTuningJobsResponseFromVertex(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try listTuningJobsResponseFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typedResp = try decodeFromJSONObject(ListTuningJobsResponse.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
@@ -294,8 +215,14 @@ public final class Tunings: BaseModule, @unchecked Sendable {
     ) async throws -> CancelTuningJobResponse {
         var path = ""
         var queryParams: [String: String] = [:]
+        let paramsDict = try jsonObject(params)
         if self.apiClient.isVertexAI() {
-            var body = cancelTuningJobParametersToVertex(params, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try cancelTuningJobParametersToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -313,12 +240,23 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = cancelTuningJobResponseFromVertex(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try cancelTuningJobResponseFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typedResp = try decodeFromJSONObject(CancelTuningJobResponse.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
         } else {
-            var body = cancelTuningJobParametersToMldev(params, params)
+            var parent: [String: JSONValue] = [:]
+            var body = try cancelTuningJobParametersToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -336,7 +274,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = cancelTuningJobResponseFromMldev(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try cancelTuningJobResponseFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             let typedResp = try decodeFromJSONObject(CancelTuningJobResponse.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
@@ -349,7 +293,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
         var path = ""
         var queryParams: [String: String] = [:]
         if self.apiClient.isVertexAI() {
-            var body = createTuningJobParametersPrivateToVertex(params, params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createTuningJobParametersPrivateToVertex(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -367,7 +317,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = tuningJobFromVertex(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try tuningJobFromVertex(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             var typedResp: TuningJob = try decodeFromJSONObject(TuningJob.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp
@@ -388,7 +344,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 "This method is only supported by the Gemini Developer API."
             )
         } else {
-            var body = createTuningJobParametersPrivateToMldev(params, params)
+            let paramsDict = try jsonObject(params)
+            var parent: [String: JSONValue] = [:]
+            var body = try createTuningJobParametersPrivateToMldev(
+                apiClient: self.apiClient,
+                fromObject: paramsDict,
+                parentObject: &parent
+            )
             guard case .object(let urlMap) = body["_url"] ?? .null else {
                 throw GenAIError.runtime("Missing _url in body.")
             }
@@ -406,7 +368,13 @@ public final class Tunings: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = tuningOperationFromMldev(apiResponse, params)
+            let apiDict = jsonValueAsDict(apiResponse)
+            var respParent: [String: JSONValue] = [:]
+            let resp = try tuningOperationFromMldev(
+                apiClient: self.apiClient,
+                fromObject: apiDict,
+                parentObject: &respParent
+            )
             var typedResp: TuningOperation = try decodeFromJSONObject(TuningOperation.self, resp)
             typedResp.sdkHttpResponse = HttpResponse(headers: httpResponse.headers)
             return typedResp

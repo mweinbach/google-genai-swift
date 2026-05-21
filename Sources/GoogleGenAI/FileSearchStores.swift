@@ -3,68 +3,142 @@
 
 import Foundation
 
-// MARK: - Converter stubs (Wave 5)
+// MARK: - Converter shims
+//
+// Local-typed wrappers that bridge strongly-typed parameter structs to the
+// JSON-based converter functions in `Converters/FileSearchStoresConverters.swift`
+// (and `Converters/OperationsConverters.swift`).
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func createFileSearchStoreParametersToMldev(
+private func _fsObject<T: Encodable>(_ value: T) throws -> [String: JSONValue] {
+    return try jsonObject(value)
+}
+
+private func _fsAsObject(_ value: JSONValue) -> [String: JSONValue] {
+    if case .object(let o) = value { return o }
+    return [:]
+}
+
+private func _fsMerge(_ dst: inout [String: JSONValue], _ src: [String: JSONValue]) {
+    for (k, v) in src { dst[k] = v }
+}
+
+internal func createFileSearchStoreParametersToMldevShim(
     _ apiClient: ApiClient,
     _ fromObject: CreateFileSearchStoreParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (createFileSearchStoreParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _fsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try createFileSearchStoreParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func getFileSearchStoreParametersToMldev(
+internal func getFileSearchStoreParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: GetFileSearchStoreParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (getFileSearchStoreParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _fsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try getFileSearchStoreParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func deleteFileSearchStoreParametersToMldev(
+internal func deleteFileSearchStoreParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: DeleteFileSearchStoreParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (deleteFileSearchStoreParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _fsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try deleteFileSearchStoreParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func listFileSearchStoresParametersToMldev(
+internal func listFileSearchStoresParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: ListFileSearchStoresParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listFileSearchStoresParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _fsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try listFileSearchStoresParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func listFileSearchStoresResponseFromMldev(
+internal func listFileSearchStoresResponseFromMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (listFileSearchStoresResponseFromMldev)")
+) throws -> [String: JSONValue] {
+    let dict = _fsAsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    return try listFileSearchStoresResponseFromMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func uploadToFileSearchStoreParametersToMldev(
+internal func uploadToFileSearchStoreParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: UploadToFileSearchStoreParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (uploadToFileSearchStoreParametersToMldev)")
+) throws -> [String: JSONValue] {
+    // `file` is a non-Codable FileInput (uploaded separately via multipart);
+    // hand-build the dict, exclude `file`, include `config` if present.
+    var dict: [String: JSONValue] = [
+        "fileSearchStoreName": .string(fromObject.fileSearchStoreName)
+    ]
+    if let config = fromObject.config {
+        let configDict = try jsonObject(config)
+        dict["config"] = .object(configDict)
+    }
+    var parent: [String: JSONValue] = [:]
+    let inner = try uploadToFileSearchStoreParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func uploadToFileSearchStoreResumableResponseFromMldev(
+internal func uploadToFileSearchStoreResumableResponseFromMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: JSONValue
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (uploadToFileSearchStoreResumableResponseFromMldev)")
+) throws -> [String: JSONValue] {
+    let dict = _fsAsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    return try uploadToFileSearchStoreResumableResponseFromMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func importFileParametersToMldev(
+internal func importFileParametersToMldevShim(
+    _ apiClient: ApiClient,
     _ fromObject: ImportFileParameters
-) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (importFileParametersToMldev)")
+) throws -> [String: JSONValue] {
+    let dict = try _fsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    let inner = try importFileParametersToMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
+    _fsMerge(&parent, inner)
+    return parent
 }
 
-// TODO Wave 5: Port from ./converters/_filesearchstores_converters.js
-internal func importFileOperationFromMldev(_ fromObject: JSONValue) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5 (importFileOperationFromMldev)")
+internal func importFileOperationFromMldevShim(
+    _ apiClient: ApiClient,
+    _ fromObject: JSONValue
+) throws -> [String: JSONValue] {
+    let dict = _fsAsObject(fromObject)
+    var parent: [String: JSONValue] = [:]
+    return try importFileOperationFromMldev(
+        apiClient: apiClient, fromObject: dict, parentObject: &parent
+    )
 }
 
 // MARK: - FileSearchStores
@@ -178,7 +252,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = createFileSearchStoreParametersToMldev(self.apiClient, params)
+            var body = try createFileSearchStoreParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("fileSearchStores", urlMap)
             } else {
@@ -214,7 +288,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = getFileSearchStoreParametersToMldev(params)
+            var body = try getFileSearchStoreParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -248,7 +322,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = deleteFileSearchStoreParametersToMldev(params)
+            var body = try deleteFileSearchStoreParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{name}", urlMap)
             } else {
@@ -281,7 +355,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = listFileSearchStoresParametersToMldev(params)
+            var body = try listFileSearchStoresParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("fileSearchStores", urlMap)
             } else {
@@ -301,7 +375,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = listFileSearchStoresResponseFromMldev(apiResponse)
+            let resp = try listFileSearchStoresResponseFromMldevShim(self.apiClient, apiResponse)
             return try decodeFromJSONObject(ListFileSearchStoresResponse.self, resp)
         }
     }
@@ -317,7 +391,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = uploadToFileSearchStoreParametersToMldev(params)
+            var body = try uploadToFileSearchStoreParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap(
                     "upload/v1beta/{file_search_store_name}:uploadToFileSearchStore",
@@ -343,7 +417,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = uploadToFileSearchStoreResumableResponseFromMldev(apiResponse)
+            let resp = try uploadToFileSearchStoreResumableResponseFromMldevShim(self.apiClient, apiResponse)
             return try decodeFromJSONObject(UploadToFileSearchStoreResumableResponse.self, resp)
         }
     }
@@ -360,7 +434,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 status: 400
             )
         } else {
-            var body = importFileParametersToMldev(params)
+            var body = try importFileParametersToMldevShim(self.apiClient, params)
             if case .object(let urlMap) = body["_url"] ?? .null {
                 path = try formatMap("{file_search_store_name}:importFile", urlMap)
             } else {
@@ -380,7 +454,7 @@ public final class FileSearchStores: BaseModule, @unchecked Sendable {
                 abortSignal: params.config?.abortSignal
             ))
             let apiResponse = try httpResponse.json()
-            let resp = importFileOperationFromMldev(apiResponse)
+            let resp = try importFileOperationFromMldevShim(self.apiClient, apiResponse)
             return try decodeFromJSONObject(ImportFileOperation.self, resp)
         }
     }

@@ -247,7 +247,7 @@ public struct GenerateContentConfig: Codable, Sendable {
 }
 
 /// Config for models.generate_content parameters.
-public struct GenerateContentParameters: Sendable {
+public struct GenerateContentParameters: Codable, Sendable {
     public var model: String
     public var contents: ContentListUnion
     public var config: GenerateContentConfig?
