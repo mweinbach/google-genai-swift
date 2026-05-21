@@ -1,33 +1,11 @@
 # GoogleGenAI for Swift
 
-Native Swift port of [`@google/genai`](https://github.com/googleapis/js-genai), the official Google Gen AI SDK. Same call shape, ~34k LOC, Swift 6 strict concurrency.
+Native Swift port of [`@google/genai`](https://github.com/googleapis/js-genai) — the official JavaScript Google Gen AI SDK. Same call shapes, same models, ~34,000 LOC of pure Swift. No network bridge, no JS runtime.
 
-## Requirements
+Two libraries ship in this package:
 
-- Swift 6.0+
-- macOS 15+, iOS 18+, tvOS 18+, watchOS 11+, visionOS 2+
-
-## Install
-
-Add to your `Package.swift`:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/<you>/swift-genai.git", branch: "main")
-],
-targets: [
-    .target(
-        name: "YourTarget",
-        dependencies: [
-            .product(name: "GoogleGenAI", package: "swift-genai")
-        ]
-    )
-]
-```
-
-Or, in Xcode: **File → Add Package Dependencies…** and paste the repo URL.
-
-## Quick start
+- **`GoogleGenAI`** — the main SDK. Mirrors the JS `@google/genai` surface 1:1. Works on macOS 15+, iOS 18+, tvOS 18+, watchOS 11+, visionOS 2+.
+- **`GoogleGenAIFoundationModels`** — opt-in adapter that mirrors Apple's [`FoundationModels`](https://developer.apple.com/documentation/foundationmodels) framework — `@Generable`, `LanguageModelSession`-style sessions, the `Tool` protocol — but routes inference to Gemini. Available on macOS 26+, iOS 26+, iPadOS 26+, visionOS 26+.
 
 ```swift
 import GoogleGenAI
@@ -41,116 +19,274 @@ let response = try await ai.models.generateContent(
 print(response.text ?? "")
 ```
 
-The Swift call shape mirrors `@google/genai`'s JavaScript API 1:1 — `new GoogleGenAI({apiKey})` → `try GoogleGenAI(apiKey:)`, `ai.models.generateContent({model, contents})` → `try await ai.models.generateContent(model:contents:)`, and so on.
+[**→ Full guides in `Docs/`**](Docs/) · [**JS→Swift migration**](Docs/10-migration-from-js.md) · [**Architecture**](Docs/11-architecture.md)
 
-### Vertex AI / Gemini Enterprise
+---
+
+## Install
+
+### Swift Package Manager
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/mweinbach/google-genai-swift.git", from: "1.1.0")
+],
+targets: [
+    .target(
+        name: "YourTarget",
+        dependencies: [
+            .product(name: "GoogleGenAI", package: "google-genai-swift"),
+            // Optional — Apple FoundationModels-shaped adapter:
+            .product(name: "GoogleGenAIFoundationModels", package: "google-genai-swift"),
+        ]
+    )
+]
+```
+
+### Xcode
+
+**File → Add Package Dependencies…** → paste `https://github.com/mweinbach/google-genai-swift` → add either or both library products to your target.
+
+---
+
+## Initialize
+
+### Gemini Developer API (API key)
+
+```swift
+let ai = try GoogleGenAI(apiKey: "YOUR_API_KEY")
+```
+
+### Vertex AI / Gemini Enterprise Agent Platform
 
 ```swift
 let ai = try GoogleGenAI(
     enterprise: true,
-    project: "your-project",
+    project: "your-gcp-project",
     location: "us-central1"
 )
 ```
 
 ### Environment variables
 
-Calling `GoogleGenAI()` with no args reads from the same env vars as the JS SDK:
+`try GoogleGenAI()` with no args reads from the same env vars as the JS SDK:
 
-- `GOOGLE_API_KEY` / `GEMINI_API_KEY`
-- `GOOGLE_GENAI_USE_ENTERPRISE` / `GOOGLE_GENAI_USE_VERTEXAI`
-- `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`
+| Variable | Maps to |
+|---|---|
+| `GOOGLE_API_KEY` | `apiKey` (preferred over `GEMINI_API_KEY` if both set) |
+| `GEMINI_API_KEY` | `apiKey` |
+| `GOOGLE_GENAI_USE_ENTERPRISE` | `enterprise` (boolean) |
+| `GOOGLE_GENAI_USE_VERTEXAI` | `vertexai` (boolean) |
+| `GOOGLE_CLOUD_PROJECT` | `project` |
+| `GOOGLE_CLOUD_LOCATION` | `location` |
 
-## Module surface
+---
 
-The `GoogleGenAI` entry-point exposes the same 10 resource modules as the JS SDK:
+## What you can do
+
+### Text generation
 
 ```swift
-ai.models           // Models — generateContent, embedContent, generateImages, generateVideos, …
-ai.live             // Live — connect() → realtime websocket Session
-ai.chats            // Chats — create(model:) → multi-turn Chat session
-ai.batches          // Batches
-ai.caches           // Caches
-ai.files            // Files
-ai.fileSearchStores // FileSearchStores
-ai.operations       // Operations
-ai.authTokens       // Tokens (ephemeral auth tokens for Live)
-ai.tunings          // Tunings
+// Plain
+let r = try await ai.models.generateContent(
+    model: "gemini-2.5-flash",
+    contents: "Explain quantum entanglement in one sentence."
+)
+print(r.text ?? "")
+
+// Streaming
+let stream = try await ai.models.generateContentStream(
+    model: "gemini-2.5-flash",
+    contents: "Write a short poem about Swift."
+)
+for try await chunk in stream {
+    if let text = chunk.text { print(text, terminator: "") }
+}
 ```
 
-## Foundation Models–shaped API (`GoogleGenAIFoundationModels`)
+[→ `Docs/02-text-generation.md`](Docs/02-text-generation.md)
 
-A second library product, `GoogleGenAIFoundationModels`, provides a wrapper that mirrors Apple's [`FoundationModels`](https://developer.apple.com/documentation/foundationmodels) framework — `LanguageModelSession`-style sessions, `@Generable` structured output, the `Tool` protocol — but routes the inference to Gemini.
+### Multi-turn chat
 
-Available on macOS 26+, iOS 26+, iPadOS 26+, and visionOS 26+ (anywhere Apple's `FoundationModels` is available).
+```swift
+let chat = ai.chats.create(model: "gemini-2.5-flash")
+_ = try await chat.sendMessage("My favorite color is teal. Remember that.")
+let r = try await chat.sendMessage("What did I tell you my favorite color was?")
+print(r.text ?? "")  // → "You told me your favorite color is teal."
+```
+
+[→ `Docs/03-chats.md`](Docs/03-chats.md)
+
+### Custom tools (function calling)
+
+```swift
+let getWeather = FunctionDeclaration(
+    description: "Look up the current weather for a city.",
+    name: "get_current_weather",
+    parametersJsonSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+            "location": .object([
+                "type": .string("string"),
+                "description": .string("The city, e.g. San Francisco")
+            ])
+        ]),
+        "required": .array([.string("location")])
+    ])
+)
+let tools: ToolListUnion = [.tool(Tool(functionDeclarations: [getWeather]))]
+let config = GenerateContentConfig(tools: tools)
+
+let r = try await ai.models.generateContent(
+    model: "gemini-2.5-flash",
+    contents: "What's the weather in Paris?",
+    config: config
+)
+// Inspect r.candidates?.first?.content?.parts for `functionCall`
+```
+
+[→ `Docs/04-tools.md`](Docs/04-tools.md)
+
+### Built-in tools
+
+Add any of these straight to `Tool`: `googleSearch`, `googleSearchRetrieval`, `codeExecution`, `urlContext`, `enterpriseWebSearch`, `vertexAiSearch`, `fileSearch`, `webSearch`, `imageSearch`, `googleMaps`, `computerUse`.
+
+```swift
+var tool = Tool()
+tool.googleSearch = GoogleSearch()        // grounded with web search
+tool.codeExecution = ToolCodeExecution()  // model can run Python
+let config = GenerateContentConfig(tools: [.tool(tool)])
+```
+
+### Structured output via Apple `@Generable`
+
+The `GoogleGenAIFoundationModels` library lets you use Apple's `@Generable` macro to get strongly-typed Swift values back from Gemini:
 
 ```swift
 import FoundationModels
 import GoogleGenAIFoundationModels
 
 @Generable struct ColorSwatch {
-    @Guide(description: "A short, evocative name for the color")
-    var name: String
-    @Guide(description: "The color's hex code, like #1A2B3C")
-    var hex: String
+    @Guide(description: "A short, evocative name") var name: String
+    @Guide(description: "Hex code, like #1A2B3C")  var hex: String
 }
 
-let session = try GeminiLanguageModelSession(
-    apiKey: "GEMINI_API_KEY",
-    instructions: "You generate small color palettes."
-)
-let response = try await session.respond(
-    to: "Invent one new color swatch inspired by an autumn forest at dusk.",
+let session = try GeminiLanguageModelSession(apiKey: "...")
+let r = try await session.respond(
+    to: "Invent a color for an autumn forest at dusk.",
     generating: ColorSwatch.self
 )
-print(response.content.name, response.content.hex)
+print(r.content.name, r.content.hex)  // typed!
 ```
 
-The adapter:
+[→ `Docs/05-structured-output.md`](Docs/05-structured-output.md)
 
-- Converts Apple's `GenerationSchema` to JSON Schema and feeds it to Gemini via `responseJsonSchema` + `responseMimeType: "application/json"`.
-- Round-trips Gemini's JSON response through Apple's `GeneratedContent` so any `@Generable` type decodes natively (including `Codable`-incompatible Apple-only types).
-- Bridges `GenerationOptions` → `GenerateContentConfig` (temperature, top-k/p, max output tokens, seed).
-- Accepts `FoundationModels.Tool` conforming types and exposes them to Gemini as function declarations.
-
-Add to your target the same way as the main library:
+### Live realtime (audio / video / text bidirectional)
 
 ```swift
-.product(name: "GoogleGenAIFoundationModels", package: "google-genai-swift")
+let session = try await ai.live.connect(LiveConnectParameters(
+    model: "models/gemini-2.5-flash-native-audio-latest",
+    callbacks: LiveCallbacks(
+        onMessage: { msg in print("recv:", msg) },
+        onOpen: { print("connected") }
+    ),
+    config: LiveConnectConfig(responseModalities: [.audio])
+))
+try session.sendClientContent(LiveSendClientContentParameters(
+    turns: .part(.text("Say hello.")),
+    turnComplete: true
+))
 ```
 
-## Features
+[→ `Docs/06-live.md`](Docs/06-live.md)
 
-- **Custom tools (function calling)** — declare `FunctionDeclaration`s, pass via `Tool(functionDeclarations: [...])` in `config.tools`
-- **Built-in tools** — `GoogleSearch`, `ToolCodeExecution`, `UrlContext`, `GoogleSearchRetrieval`, `EnterpriseWebSearch`, `VertexAISearch`, `FileSearch`, `WebSearch`, `GoogleMaps`, `ComputerUse`
-- **Streaming** — `generateContentStream` returns an `AsyncThrowingStream<GenerateContentResponse, Error>`
-- **Multi-turn chat** — `ai.chats.create(model:)` returns a `Chat` with `sendMessage(_:)` / `sendMessageStream(_:)`
-- **Live realtime** — `ai.live.connect(...)` returns a `Session` for bidirectional audio/text streaming over `URLSessionWebSocketTask`
-- **Live music** — `Music` / `MusicSession`
-- **MCP tools** — `mcpToTool(_:config:)` for the Model Context Protocol (bring-your-own `McpClient`)
-- **Tokenizer** — vendored cross-platform SentencePiece tokenizer (`Cross/Tokenizer`, `Cross/SentencePiece`)
+### Files, images, videos
 
-## Run the smoke test
+```swift
+// Upload a file for use in prompts
+let file = try await ai.files.upload(...)
 
-The repo ships with a `SmokeTest` executable that exercises all seven major surfaces against the live Gemini API:
+// Generate an image
+let imageResp = try await ai.models.generateImages(
+    model: "imagen-3.0-generate-002",
+    prompt: "A serene mountain lake at dawn"
+)
+
+// Generate a video (long-running operation)
+let op = try await ai.models.generateVideos(GenerateVideosParameters(
+    model: "veo-2.0-generate-001",
+    prompt: "A cat surfing on a wave"
+))
+let done = try await ai.operations.getVideosOperation(.init(operation: op))
+```
+
+[→ `Docs/07-files.md`](Docs/07-files.md) · [→ `Docs/08-images-videos.md`](Docs/08-images-videos.md)
+
+### Vertex AI / Gemini Enterprise
+
+[→ `Docs/09-vertex.md`](Docs/09-vertex.md)
+
+---
+
+## Module surface
+
+`GoogleGenAI` exposes the same 10 resource modules as the JS SDK — accessible via `ai.<module>`:
+
+| Property | Type | What it does |
+|---|---|---|
+| `ai.models` | `Models` | Text, images, videos, embeddings, token counting |
+| `ai.chats` | `Chats` | Multi-turn conversations with auto history |
+| `ai.live` | `Live` | Realtime bidirectional WebSocket sessions |
+| `ai.batches` | `Batches` | Batch inference jobs |
+| `ai.caches` | `Caches` | Cached content for context reuse |
+| `ai.files` | `Files` | Upload/manage files referenced from prompts |
+| `ai.fileSearchStores` | `FileSearchStores` | RAG-style file-search corpus management |
+| `ai.operations` | `Operations` | Poll long-running operations (videos, tuning) |
+| `ai.authTokens` | `Tokens` | Ephemeral auth tokens for Live API |
+| `ai.tunings` | `Tunings` | Fine-tuning job lifecycle |
+
+---
+
+## Docs index
+
+| Guide | What's in it |
+|---|---|
+| [`01-getting-started.md`](Docs/01-getting-started.md) | Install, init, first call |
+| [`02-text-generation.md`](Docs/02-text-generation.md) | `generateContent`, streaming, config options |
+| [`03-chats.md`](Docs/03-chats.md) | Multi-turn chat sessions and history |
+| [`04-tools.md`](Docs/04-tools.md) | Custom function calls, built-in tools, MCP |
+| [`05-structured-output.md`](Docs/05-structured-output.md) | `@Generable` adapter, response schemas |
+| [`06-live.md`](Docs/06-live.md) | Realtime WebSocket — audio in/out, video, tool calls |
+| [`07-files.md`](Docs/07-files.md) | File upload, lifecycle, referencing in prompts |
+| [`08-images-videos.md`](Docs/08-images-videos.md) | `generateImages`, `generateVideos`, edit/upscale |
+| [`09-vertex.md`](Docs/09-vertex.md) | Vertex AI / Enterprise mode, auth |
+| [`10-migration-from-js.md`](Docs/10-migration-from-js.md) | JS → Swift translation table |
+| [`11-architecture.md`](Docs/11-architecture.md) | Package layout, conventions, contributing |
+
+---
+
+## Run the live smoke test
 
 ```bash
 GEMINI_API_KEY=... swift run SmokeTest
 ```
 
-## Layout
+Exercises eight major surfaces end-to-end against the live API (generateContent, streaming, chats, custom tools, Google Search grounding, code execution, Live realtime, and the FoundationModels adapter).
 
-- `Sources/GoogleGenAI/` — main library (109 files)
-  - `Types/` — request/response schema (ported from js-genai's `types.ts`)
-  - `Converters/` — wire-format converters
-  - `Interactions/` — vendored streaming/HTTP/agents subsystem
-  - `Cross/SentencePiece/` + `Cross/Tokenizer/` — tokenizers
-  - `MCP/`, `VertexInternal/` — opt-in surfaces
-- `Sources/SmokeTest/` — executable e2e test
-- `Tests/GoogleGenAITests/` — shape pinning + smoke
+---
 
-See [`PORTING.md`](PORTING.md) for js-genai → Swift mapping conventions and limitations.
+## Compatibility
+
+- **Swift**: 6.0+ (uses strict concurrency)
+- **`GoogleGenAI` library**: macOS 15+, iOS 18+, tvOS 18+, watchOS 11+, visionOS 2+
+- **`GoogleGenAIFoundationModels` library**: macOS 26+, iOS 26+, iPadOS 26+, visionOS 26+ (anywhere Apple's `FoundationModels` is available)
 
 ## License
 
-Apache-2.0, matching the upstream `googleapis/js-genai`.
+Apache-2.0, matching the upstream [`googleapis/js-genai`](https://github.com/googleapis/js-genai).
+
+## Status
+
+- ✅ All 9 porting waves complete (`Wave 1`…`Wave 9`); see commit history
+- ✅ Verified end-to-end against the live Gemini API (`swift run SmokeTest`)
+- ⚠️ Known gaps: Vertex AI service-account ADC auth (needs Swift JWT library); SSE decoder is byte- not codepoint-streaming. See [`PORTING.md`](PORTING.md).

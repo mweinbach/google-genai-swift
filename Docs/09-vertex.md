@@ -1,0 +1,116 @@
+# Vertex AI / Gemini Enterprise
+
+The SDK supports the Vertex AI API (a.k.a. Gemini Enterprise Agent Platform) using the same surface as the Gemini Developer API — flip a flag at init time.
+
+## Initialize
+
+```swift
+let ai = try GoogleGenAI(
+    enterprise: true,
+    project: "your-gcp-project",
+    location: "us-central1"
+)
+```
+
+`enterprise: true` is preferred; `vertexai: true` is the legacy alias and works identically.
+
+You can also set `GOOGLE_GENAI_USE_ENTERPRISE=true`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` in the environment and call `try GoogleGenAI()` with no args.
+
+## What changes vs. Developer API
+
+The call shapes are identical, but several behaviors differ on the server side:
+
+- **Model identifiers** prefix with `publishers/google/models/` automatically (the SDK adds this for you when needed).
+- **Base URL** becomes `https://{location}-aiplatform.googleapis.com`.
+- **Some types are Vertex-only** — for example `BatchJobSource.bigqueryUri`, `vertex-dataset` source format, `multimodalDataset` destinations.
+- **Some types are Gemini-only** — ephemeral `auth_tokens/...` API keys are not honored.
+- **Default `responseModalities`** for Live is `[.audio]` on Vertex; `[.text]` is opt-in.
+
+The SDK detects `ai.vertexai == true` and routes through the correct converter (`...ToVertex` vs `...ToMldev`) for every method internally — your code doesn't change.
+
+## Authentication
+
+### API key (recommended for development)
+
+```swift
+let ai = try GoogleGenAI(
+    enterprise: true,
+    apiKey: "ya29.example-vertex-api-key",
+    project: "your-project",
+    location: "us-central1"
+)
+```
+
+### Service account / ADC (Application Default Credentials)
+
+**Currently unsupported in the Swift port.** The JavaScript SDK delegates to `google-auth-library` which signs short-lived JWTs from a service-account JSON file; the Swift port doesn't include a JWT-signing implementation.
+
+If you call `GoogleGenAI(enterprise: true, project:..., location:...)` without providing an API key, the auth layer throws `GenAIError.unsupported` with a TODO pointing at a future Swift JWT implementation.
+
+**Workarounds:**
+1. Issue a short-lived access token via `gcloud auth print-access-token` (or your IAM token service) and pass it as `apiKey:`. Refresh before the 1-hour expiry.
+2. Run a tiny sidecar that mints tokens and inject via `HttpOptions.headers`.
+
+A native Swift `service-account` flow is on the roadmap — track via the [`Auth.swift`](../Sources/GoogleGenAI/Auth.swift) TODO.
+
+## Vertex-only features
+
+### Tuning jobs
+
+```swift
+let op = try await ai.tunings.tune(CreateTuningJobParameters(
+    baseModel: "gemini-2.5-flash",
+    trainingDataset: TuningDataset(
+        gcsUri: "gs://my-bucket/training.jsonl"
+    ),
+    config: CreateTuningJobConfig(
+        tunedModelDisplayName: "support-bot-v1",
+        epochCount: 3,
+        learningRateMultiplier: 1.0
+    )
+))
+
+// Poll
+let job = try await ai.tunings.get(name: op.name)
+```
+
+### Batch inference
+
+```swift
+let job = try await ai.batches.create(CreateBatchJobParameters(
+    model: "gemini-2.5-flash",
+    src: .source(BatchJobSource(
+        format: "bigquery",
+        bigqueryUri: "bq://my-project.my-dataset.my-input-table"
+    )),
+    config: CreateBatchJobConfig(
+        dest: .destination(BatchJobDestination(
+            format: "bigquery",
+            bigqueryUri: "bq://my-project.my-dataset.my-output-table"
+        ))
+    )
+))
+
+while job.state != .jobStateSucceeded && job.state != .jobStateFailed {
+    try await Task.sleep(for: .seconds(30))
+    let updated = try await ai.batches.get(GetBatchJobParameters(name: job.name ?? ""))
+    if updated.state == .jobStateSucceeded { break }
+}
+```
+
+### Enterprise web search grounding
+
+```swift
+var tool = Tool()
+tool.enterpriseWebSearch = EnterpriseWebSearch()
+let config = GenerateContentConfig(tools: [.tool(tool)])
+```
+
+### Vertex AI Search RAG
+
+```swift
+var tool = Tool()
+tool.retrieval = Retrieval(vertexAiSearch: VertexAISearch(
+    datastore: "projects/.../dataStores/your-datastore-id"
+))
+```
