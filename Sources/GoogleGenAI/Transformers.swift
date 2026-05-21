@@ -5,13 +5,16 @@ import Foundation
 
 // MARK: - Internal MCP Tool placeholder
 //
+// Wave 9: `McpTool` is now defined as a real struct in `MCP/MCP.swift`.
+// Previously this file aliased it to `[String: JSONValue]`; that alias is removed.
+
 // The JS SDK depends on `@modelcontextprotocol/sdk` for the `Tool as McpTool`
 // type. Swift has no first-party MCP SDK yet, so we model the MCP tool shape
 // as a typed alias over `[String: JSONValue]` for now.
 
 /// MCP tool representation. Mirrors the shape of `@modelcontextprotocol/sdk`'s `Tool`:
 /// at minimum exposes `name`, `description`, `inputSchema`, optionally `outputSchema`.
-public typealias McpTool = [String: JSONValue]
+// (McpTool typealias removed — see MCP/MCP.swift for the real struct.)
 
 public func tModel(apiClient: ApiClient, model: JSONValue) throws -> String {
     guard case .string(let s) = model, !s.isEmpty else {
@@ -718,25 +721,14 @@ private func hasField(_ data: JSONValue, fieldName: String) -> Bool {
 }
 
 public func mcpToGeminiTool(_ mcpTool: McpTool, config: CallableToolConfig = CallableToolConfig()) -> Tool {
-    var name: String?
-    if case .string(let s) = mcpTool["name"] ?? .null { name = s }
-    var description: String?
-    if case .string(let s) = mcpTool["description"] ?? .null { description = s }
-
     var functionDeclaration = FunctionDeclaration(
-        description: description,
-        name: name,
-        parametersJsonSchema: mcpTool["inputSchema"]
+        description: mcpTool.description,
+        name: mcpTool.name,
+        parametersJsonSchema: mcpTool.inputSchema
     )
-    if let outputSchema = mcpTool["outputSchema"], case .null = outputSchema {
-        // Skip when null
-    } else if let outputSchema = mcpTool["outputSchema"] {
-        functionDeclaration.responseJsonSchema = outputSchema
-    }
     if let behavior = config.behavior {
         functionDeclaration.behavior = behavior
     }
-
     return Tool(functionDeclarations: [functionDeclaration])
 }
 
@@ -746,15 +738,12 @@ public func mcpToolsToGeminiTool(_ mcpTools: [McpTool], config: CallableToolConf
     var functionDeclarations: [FunctionDeclaration] = []
     var toolNames = Set<String>()
     for mcpTool in mcpTools {
-        guard case .string(let mcpToolName) = mcpTool["name"] ?? .null else {
-            throw GenAIError.invalidArgument("MCP tool is missing a name")
-        }
-        if toolNames.contains(mcpToolName) {
+        if toolNames.contains(mcpTool.name) {
             throw GenAIError.invalidArgument(
-                "Duplicate function name \(mcpToolName) found in MCP tools. Please ensure function names are unique."
+                "Duplicate function name \(mcpTool.name) found in MCP tools. Please ensure function names are unique."
             )
         }
-        toolNames.insert(mcpToolName)
+        toolNames.insert(mcpTool.name)
         let geminiTool = mcpToGeminiTool(mcpTool, config: config)
         if let decls = geminiTool.functionDeclarations {
             functionDeclarations.append(contentsOf: decls)
