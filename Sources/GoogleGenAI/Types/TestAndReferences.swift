@@ -3,10 +3,6 @@
 
 import Foundation
 
-/// Placeholder for the internal reference image API shape.
-/// This will be replaced when `InternalTypes.swift` is ported (see Wave 5).
-public protocol ReferenceImageAPIInternal: Sendable {}
-
 public struct TestTableItem: Codable, Sendable {
     /// The name of the test. This is used to derive the replay id.
     public var name: String?
