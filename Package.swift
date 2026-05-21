@@ -14,6 +14,10 @@ let package = Package(
         .library(
             name: "GoogleGenAI",
             targets: ["GoogleGenAI"]
+        ),
+        .executable(
+            name: "SmokeTest",
+            targets: ["SmokeTest"]
         )
     ],
     dependencies: [],
@@ -22,6 +26,11 @@ let package = Package(
             name: "GoogleGenAI",
             dependencies: [],
             path: "Sources/GoogleGenAI"
+        ),
+        .executableTarget(
+            name: "SmokeTest",
+            dependencies: ["GoogleGenAI"],
+            path: "Sources/SmokeTest"
         ),
         .testTarget(
             name: "GoogleGenAITests",
