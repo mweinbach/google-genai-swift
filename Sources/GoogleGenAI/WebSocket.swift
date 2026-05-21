@@ -55,25 +55,31 @@ public protocol WebSocketFactory: Sendable {
 
 /// Foundation implementation backed by `URLSessionWebSocketTask`. Collapses
 /// `NodeWebSocket` (Node `ws` package) and `BrowserWebSocket` (browser native) into one type.
-public final class URLSessionWebSocket: WebSocketClient, @unchecked Sendable {
+///
+/// `onOpen` is fired from `URLSessionWebSocketDelegate.urlSession(_:webSocketTask:didOpenWithProtocol:)`
+/// — i.e. only after the HTTP-Upgrade handshake actually completes — so callers
+/// can safely send messages from the `onOpen` callback.
+public final class URLSessionWebSocket: NSObject, WebSocketClient, URLSessionWebSocketDelegate, @unchecked Sendable {
     private let url: String
     private let headers: [String: String]
     private let callbacks: WebSocketCallbacks
-    private let session: URLSession
+    private var session: URLSession!
     private var task: URLSessionWebSocketTask?
     private let lock = NSLock()
     private var closed = false
+    private var opened = false
+    private var pendingSends: [String] = []
 
     public init(
         url: String,
         headers: [String: String],
-        callbacks: WebSocketCallbacks,
-        session: URLSession = .shared
+        callbacks: WebSocketCallbacks
     ) {
         self.url = url
         self.headers = headers
         self.callbacks = callbacks
-        self.session = session
+        super.init()
+        self.session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
     }
 
     public func connect() {
@@ -88,22 +94,26 @@ public final class URLSessionWebSocket: WebSocketClient, @unchecked Sendable {
         let task = session.webSocketTask(with: request)
         lock.lock(); self.task = task; lock.unlock()
         task.resume()
-        // URLSessionWebSocketTask connects on resume; receive() will report errors via the
-        // recursive receive loop. We fire onOpen immediately to match TS WebSocket semantics
-        // (Node/browser emit `open` once the task is ready to send).
-        self.callbacks.onOpen()
-        self.startReceiving()
+        // `startReceiving()` is intentionally NOT called here — it runs from
+        // `didOpenWithProtocol` once the WebSocket handshake actually completes,
+        // otherwise `task.receive` immediately fails with NSPOSIXErrorDomain 57.
     }
 
     public func send(_ message: String) throws {
         lock.lock()
         let task = self.task
+        let isOpen = self.opened
+        if !isOpen {
+            // Queue until handshake completes — protects against the race where a caller
+            // sends from `onOpen` but the delegate hasn't fired yet on this thread.
+            self.pendingSends.append(message)
+        }
         lock.unlock()
         guard let task = task else {
             throw GenAIError.runtime("WebSocket is not connected")
         }
+        guard isOpen else { return }
         let callbacks = self.callbacks
-        // Send is async — fire-and-forget but surface failures through onError.
         task.send(.string(message)) { error in
             if let error = error {
                 callbacks.onError(error)
@@ -121,6 +131,52 @@ public final class URLSessionWebSocket: WebSocketClient, @unchecked Sendable {
         task.cancel(with: .normalClosure, reason: nil)
         self.callbacks.onClose(Int(URLSessionWebSocketTask.CloseCode.normalClosure.rawValue), "")
     }
+
+    // MARK: - URLSessionWebSocketDelegate
+
+    public func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didOpenWithProtocol protocol: String?
+    ) {
+        lock.lock()
+        self.opened = true
+        let drain = self.pendingSends
+        self.pendingSends.removeAll()
+        lock.unlock()
+        self.callbacks.onOpen()
+        let callbacks = self.callbacks
+        // Start the receive loop now that the handshake has completed.
+        self.startReceiving()
+        for queued in drain {
+            webSocketTask.send(.string(queued)) { error in
+                if let error = error { callbacks.onError(error) }
+            }
+        }
+    }
+
+    public func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: Data?
+    ) {
+        let reasonString = reason.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+        self.handleClose(code: Int(closeCode.rawValue), reason: reasonString)
+    }
+
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        if let error = error {
+            self.callbacks.onError(error)
+            self.handleClose(code: -1, reason: error.localizedDescription)
+        }
+    }
+
+    // MARK: - Receive loop
 
     private func startReceiving() {
         lock.lock()

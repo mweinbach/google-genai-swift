@@ -309,7 +309,11 @@ public final class ApiClient: GeminiNextGenAPIClientAdapter, @unchecked Sendable
             throw GenAIError.runtime("Invalid base URL: \(baseUrl)")
         }
         components.scheme = (components.scheme == "http") ? "ws" : "wss"
-        return components.string ?? baseUrl
+        // Strip a trailing "/" so callers can safely concatenate "/ws/..." without
+        // producing a double-slash path (which the Live endpoint rejects).
+        var result = components.string ?? baseUrl
+        while result.hasSuffix("/") { result.removeLast() }
+        return result
     }
 
     public func setBaseUrl(_ url: String) throws {
