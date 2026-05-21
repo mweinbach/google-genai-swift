@@ -417,14 +417,17 @@ public struct UploadToFileSearchStoreConfig: Codable, Sendable {
 }
 
 /// Generates the parameters for the private `_upload_to_file_search_store` method.
-public struct UploadToFileSearchStoreParameters: Codable, Sendable {
+public struct UploadToFileSearchStoreParameters: @unchecked Sendable {
     /// The resource name of the FileSearchStore.
     public var fileSearchStoreName: String
+    /// The file to upload — path on disk, Foundation `Data`, or in-memory bytes.
+    public var file: FileInput
     /// Used to override the default configuration.
     public var config: UploadToFileSearchStoreConfig?
 
-    public init(fileSearchStoreName: String, config: UploadToFileSearchStoreConfig? = nil) {
+    public init(fileSearchStoreName: String, file: FileInput, config: UploadToFileSearchStoreConfig? = nil) {
         self.fileSearchStoreName = fileSearchStoreName
+        self.file = file
         self.config = config
     }
 }

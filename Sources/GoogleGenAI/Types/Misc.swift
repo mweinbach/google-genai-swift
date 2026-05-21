@@ -275,7 +275,24 @@ public final class UploadToFileSearchStoreOperation: Codable, @unchecked Sendabl
 
     /// Instantiates an Operation of the same type as the one being called with the fields set from the API response.
     public func _fromAPIResponse(_ parameters: OperationFromAPIResponseParameters) -> UploadToFileSearchStoreOperation {
-        fatalError("Not yet ported — see Wave 5 (uploadToFileSearchStoreOperationFromMldev)")
+        let operation = UploadToFileSearchStoreOperation()
+        let mapped: [String: JSONValue]
+        do {
+            var parent: [String: JSONValue] = [:]
+            mapped = try uploadToFileSearchStoreOperationFromMldev(apiClient: parameters.apiClient, fromObject: parameters.apiResponse, parentObject: &parent)
+        } catch {
+            return operation
+        }
+        if let data = try? JSONEncoder().encode(JSONValue.object(mapped)),
+           let decoded = try? JSONDecoder().decode(UploadToFileSearchStoreOperation.self, from: data) {
+            operation.name = decoded.name
+            operation.metadata = decoded.metadata
+            operation.done = decoded.done
+            operation.error = decoded.error
+            operation.response = decoded.response
+            operation.sdkHttpResponse = decoded.sdkHttpResponse
+        }
+        return operation
     }
 }
 

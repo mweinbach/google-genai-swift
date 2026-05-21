@@ -290,13 +290,16 @@ public final class LiveServerMessage: Codable, @unchecked Sendable {
 }
 
 /// Parameters of the fromAPIResponse method of the Operation class.
-public struct OperationFromAPIResponseParameters: Sendable {
+public struct OperationFromAPIResponseParameters: @unchecked Sendable {
+    /// The API client used to call the converters.
+    public var apiClient: ApiClient
     /// The API response to be converted to an Operation.
     public var apiResponse: [String: JSONValue]
     /// Whether the API response is from Vertex AI.
     public var isVertexAI: Bool
 
-    public init(apiResponse: [String: JSONValue], isVertexAI: Bool) {
+    public init(apiClient: ApiClient, apiResponse: [String: JSONValue], isVertexAI: Bool) {
+        self.apiClient = apiClient
         self.apiResponse = apiResponse
         self.isVertexAI = isVertexAI
     }

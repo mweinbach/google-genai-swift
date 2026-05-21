@@ -173,12 +173,11 @@ public final class GoogleGenAI: @unchecked Sendable {
         self.apiVersion = options.apiVersion
         self.httpOptions = options.httpOptions
         let auth: Auth = DefaultAuth(apiKey: apiKey)
-        // GoogleGenAI does not currently wire up an Uploader/Downloader (Wave 6).
-        // Pass no-op placeholders until those waves land.
+        // Wave 6: real Foundation-backed Uploader / Downloader.
         self.apiClient = try ApiClient(ApiClientInitOptions(
             auth: auth,
-            uploader: _NoOpUploader(),
-            downloader: _NoOpDownloader(),
+            uploader: URLSessionUploader(),
+            downloader: URLSessionDownloader(),
             project: options.project,
             location: options.location,
             apiKey: apiKey,
@@ -200,24 +199,4 @@ public final class GoogleGenAI: @unchecked Sendable {
     }
 }
 
-// MARK: - No-op Uploader/Downloader (replaced in Wave 6)
-
-/// TODO Wave 6: replace with real implementation from `_uploader.ts`.
-private struct _NoOpUploader: Uploader {
-    func stat(_ file: FileInput) async throws -> FileStat {
-        throw GenAIError.unsupported("Uploader not yet ported (Wave 6).")
-    }
-    func upload(_ file: FileInput, uploadUrl: String, apiClient: ApiClient) async throws -> File {
-        throw GenAIError.unsupported("Uploader not yet ported (Wave 6).")
-    }
-    func uploadToFileSearchStore(_ file: FileInput, uploadUrl: String, apiClient: ApiClient) async throws -> UploadToFileSearchStoreOperation {
-        throw GenAIError.unsupported("Uploader not yet ported (Wave 6).")
-    }
-}
-
-/// TODO Wave 6: replace with real implementation from `_downloader.ts`.
-private struct _NoOpDownloader: Downloader {
-    func download(_ params: DownloadFileParameters, apiClient: ApiClient) async throws {
-        throw GenAIError.unsupported("Downloader not yet ported (Wave 6).")
-    }
-}
+// Real Uploader / Downloader live in `Uploader.swift` and `Downloader.swift`.

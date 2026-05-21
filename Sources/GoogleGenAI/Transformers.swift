@@ -102,6 +102,49 @@ public func tAudioBlob(_ blob: Blob) throws -> Blob {
     throw GenAIError.invalidArgument("Unsupported mime type: \(transformedBlob.mimeType ?? "")")
 }
 
+// MARK: - JSONValue overloads
+// These accept the converter-internal `JSONValue` representation, decode into the
+// strong-typed input, delegate to the existing overload, then re-encode the
+// transformed result back into `JSONValue` so the converter call sites stay
+// JSON-shaped.
+
+public func tBlobs(_ blobs: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(blobs)
+    if let array = try? JSONDecoder().decode([Blob].self, from: data) {
+        let result = try tBlobs(array)
+        let outData = try JSONEncoder().encode(result)
+        return try JSONDecoder().decode(JSONValue.self, from: outData)
+    }
+    let single = try JSONDecoder().decode(Blob.self, from: data)
+    let result = try tBlobs(single)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tBlob(_ blob: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(blob)
+    let strong = try JSONDecoder().decode(Blob.self, from: data)
+    let result = try tBlob(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tImageBlob(_ blob: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(blob)
+    let strong = try JSONDecoder().decode(Blob.self, from: data)
+    let result = try tImageBlob(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tAudioBlob(_ blob: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(blob)
+    let strong = try JSONDecoder().decode(Blob.self, from: data)
+    let result = try tAudioBlob(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
 public func tPart(_ origin: PartUnion?) throws -> Part {
     guard let origin else {
         throw GenAIError.invalidArgument("PartUnion is required")
@@ -922,4 +965,73 @@ public func tJobState(_ state: String) -> String {
 public func tIsVertexEmbedContentModel(_ model: String) -> Bool {
     return (model.contains("gemini") && model != "gemini-embedding-001")
         || model.contains("maas")
+}
+
+// MARK: - Additional JSONValue overloads for converters
+
+public func tContent(_ origin: JSONValue) throws -> [String: JSONValue] {
+    let data = try JSONEncoder().encode(origin)
+    let union = try JSONDecoder().decode(ContentUnion.self, from: data)
+    let result = try tContent(union)
+    let outData = try JSONEncoder().encode(result)
+    if case .object(let obj) = try JSONDecoder().decode(JSONValue.self, from: outData) {
+        return obj
+    }
+    return [:]
+}
+
+public func tContents(_ origin: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(origin)
+    let union = try JSONDecoder().decode(ContentListUnion.self, from: data)
+    let result = try tContents(union)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tContentsForEmbed(apiClient: ApiClient, origin: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(origin)
+    let union = try JSONDecoder().decode(ContentListUnion.self, from: data)
+    let result = try tContentsForEmbed(apiClient: apiClient, origin: union)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tTool(_ tool: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(tool)
+    let strong = try JSONDecoder().decode(Tool.self, from: data)
+    let result = try tTool(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tTools(_ tools: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(tools)
+    let strong = try JSONDecoder().decode([Tool].self, from: data)
+    let result = try tTools(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tLiveSpeechConfig(_ speechConfig: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(speechConfig)
+    let strong = try JSONDecoder().decode(SpeechConfig.self, from: data)
+    let result = try tLiveSpeechConfig(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tBatchJobSource(client: ApiClient, src: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(src)
+    let strong = try JSONDecoder().decode(BatchJobSourceUnion.self, from: data)
+    let result = try tBatchJobSource(client: client, src: strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
+}
+
+public func tBatchJobDestination(_ dest: JSONValue) throws -> JSONValue {
+    let data = try JSONEncoder().encode(dest)
+    let strong = try JSONDecoder().decode(BatchJobDestinationUnion.self, from: data)
+    let result = try tBatchJobDestination(strong)
+    let outData = try JSONEncoder().encode(result)
+    return try JSONDecoder().decode(JSONValue.self, from: outData)
 }

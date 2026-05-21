@@ -34,31 +34,9 @@ private let DEFAULT_RETRY_HTTP_STATUS_CODES: Set<Int> = [
 // MARK: - Stubs — replaced in later waves
 
 /// `Auth` is owned by sibling port (`Auth.swift`, `_auth.ts`).
-
-/// Uploader abstraction — real implementation arrives in Wave 6 (`_uploader.ts`).
-public protocol Uploader: Sendable {
-    /// Returns size + inferred MIME type for the input file.
-    func stat(_ file: FileInput) async throws -> FileStat
-    /// Performs a resumable upload to the pre-fetched `uploadUrl` and returns the resulting `File`.
-    func upload(_ file: FileInput, uploadUrl: String, apiClient: ApiClient) async throws -> File
-    /// Uploads to a file search store, returning the long-running operation handle.
-    func uploadToFileSearchStore(_ file: FileInput, uploadUrl: String, apiClient: ApiClient) async throws -> UploadToFileSearchStoreOperation
-}
-
-/// Stat info returned by an `Uploader`.
-public struct FileStat: Sendable {
-    public var size: Int64
-    public var type: String?
-    public init(size: Int64, type: String? = nil) {
-        self.size = size
-        self.type = type
-    }
-}
-
-/// Downloader abstraction — real implementation arrives in Wave 6 (`_downloader.ts`).
-public protocol Downloader: Sendable {
-    func download(_ params: DownloadFileParameters, apiClient: ApiClient) async throws
-}
+/// `Uploader` is owned by `Uploader.swift` (Wave 6).
+/// `Downloader` is owned by `Downloader.swift` (Wave 6).
+/// `FileStat` is owned by `Uploader.swift` (Wave 6).
 
 /// Adapter protocol — concrete shape arrives in Wave 7 (`interactions/client-adapter.ts`).
 /// Declared empty here so `ApiClient` can conform without coupling to unbuilt code.

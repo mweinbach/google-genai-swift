@@ -100,11 +100,18 @@ public final class ImportFileOperation: Codable, @unchecked Sendable {
 
     /// Instantiates an Operation of the same type as the one being called with the fields set from the API response.
     public func fromAPIResponse(
+        apiClient: ApiClient,
         apiResponse: [String: JSONValue],
         isVertexAI: Bool
     ) -> ImportFileOperation {
         let operation = ImportFileOperation()
-        let mapped = importFileOperationFromMldev(apiResponse)
+        let mapped: [String: JSONValue]
+        do {
+            var parent: [String: JSONValue] = [:]
+            mapped = try importFileOperationFromMldev(apiClient: apiClient, fromObject: apiResponse, parentObject: &parent)
+        } catch {
+            return operation
+        }
         if let data = try? JSONEncoder().encode(JSONValue.object(mapped)),
            let decoded = try? JSONDecoder().decode(ImportFileOperation.self, from: data) {
             operation.name = decoded.name
@@ -466,9 +473,3 @@ public struct JobError: Codable, Sendable {
     }
 }
 
-// MARK: - Stub functions (see Wave 5)
-
-/// Maps an MLDev API response payload into an `ImportFileOperation` field dictionary. Stub — see Wave 5.
-internal func importFileOperationFromMldev(_ apiResponse: [String: JSONValue]) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5")
-}

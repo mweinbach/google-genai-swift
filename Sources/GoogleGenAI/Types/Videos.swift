@@ -289,16 +289,21 @@ public final class GenerateVideosOperation: Codable, @unchecked Sendable {
 
     /// Instantiates an Operation of the same type as the one being called with the fields set from the API response.
     public static func fromAPIResponse(
+        apiClient: ApiClient,
         apiResponse: [String: JSONValue],
         isVertexAI: Bool
     ) -> GenerateVideosOperation {
         let operation = GenerateVideosOperation()
-        let op = apiResponse
         let response: [String: JSONValue]
-        if isVertexAI {
-            response = generateVideosOperationFromVertex(op)
-        } else {
-            response = generateVideosOperationFromMldev(op)
+        do {
+            var parent: [String: JSONValue] = [:]
+            if isVertexAI {
+                response = try generateVideosOperationFromVertex(apiClient: apiClient, fromObject: apiResponse, parentObject: &parent)
+            } else {
+                response = try generateVideosOperationFromMldev(apiClient: apiClient, fromObject: apiResponse, parentObject: &parent)
+            }
+        } catch {
+            return operation
         }
         // Object.assign(operation, response) — mirror by decoding then copying fields.
         if let data = try? JSONEncoder().encode(response),
@@ -314,12 +319,3 @@ public final class GenerateVideosOperation: Codable, @unchecked Sendable {
     }
 }
 
-// TODO Wave 5: Port from ./converters/_operations_converters.js
-internal func generateVideosOperationFromMldev(_ apiResponse: [String: JSONValue]) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5")
-}
-
-// TODO Wave 5: Port from ./converters/_operations_converters.js
-internal func generateVideosOperationFromVertex(_ apiResponse: [String: JSONValue]) -> [String: JSONValue] {
-    fatalError("Not yet ported — see Wave 5")
-}
