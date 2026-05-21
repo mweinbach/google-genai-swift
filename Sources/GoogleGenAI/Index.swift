@@ -12,6 +12,11 @@
 
 import Foundation
 
+/// Alias for `Tool` (the GoogleGenAI wire-format struct), useful when
+/// importing GoogleGenAI alongside Apple's `FoundationModels`, which exports
+/// its own `Tool` protocol that would otherwise create ambiguity.
+public typealias GoogleGenAITool = Tool
+
 // Re-exported in TS as `export * from './batches'` etc:
 //   - GoogleGenAI (Client.swift)
 //   - Batches, Caches, Chats, Files, FileSearchStores, Documents, Models,

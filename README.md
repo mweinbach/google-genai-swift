@@ -78,6 +78,47 @@ ai.authTokens       // Tokens (ephemeral auth tokens for Live)
 ai.tunings          // Tunings
 ```
 
+## Foundation Models–shaped API (`GoogleGenAIFoundationModels`)
+
+A second library product, `GoogleGenAIFoundationModels`, provides a wrapper that mirrors Apple's [`FoundationModels`](https://developer.apple.com/documentation/foundationmodels) framework — `LanguageModelSession`-style sessions, `@Generable` structured output, the `Tool` protocol — but routes the inference to Gemini.
+
+Available on macOS 26+, iOS 26+, iPadOS 26+, and visionOS 26+ (anywhere Apple's `FoundationModels` is available).
+
+```swift
+import FoundationModels
+import GoogleGenAIFoundationModels
+
+@Generable struct ColorSwatch {
+    @Guide(description: "A short, evocative name for the color")
+    var name: String
+    @Guide(description: "The color's hex code, like #1A2B3C")
+    var hex: String
+}
+
+let session = try GeminiLanguageModelSession(
+    apiKey: "GEMINI_API_KEY",
+    instructions: "You generate small color palettes."
+)
+let response = try await session.respond(
+    to: "Invent one new color swatch inspired by an autumn forest at dusk.",
+    generating: ColorSwatch.self
+)
+print(response.content.name, response.content.hex)
+```
+
+The adapter:
+
+- Converts Apple's `GenerationSchema` to JSON Schema and feeds it to Gemini via `responseJsonSchema` + `responseMimeType: "application/json"`.
+- Round-trips Gemini's JSON response through Apple's `GeneratedContent` so any `@Generable` type decodes natively (including `Codable`-incompatible Apple-only types).
+- Bridges `GenerationOptions` → `GenerateContentConfig` (temperature, top-k/p, max output tokens, seed).
+- Accepts `FoundationModels.Tool` conforming types and exposes them to Gemini as function declarations.
+
+Add to your target the same way as the main library:
+
+```swift
+.product(name: "GoogleGenAIFoundationModels", package: "google-genai-swift")
+```
+
 ## Features
 
 - **Custom tools (function calling)** — declare `FunctionDeclaration`s, pass via `Tool(functionDeclarations: [...])` in `config.tools`

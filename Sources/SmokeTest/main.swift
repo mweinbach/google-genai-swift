@@ -15,6 +15,10 @@
 
 import Foundation
 import GoogleGenAI
+#if canImport(FoundationModels)
+import FoundationModels
+import GoogleGenAIFoundationModels
+#endif
 
 @main
 struct SmokeTest {
@@ -35,6 +39,15 @@ struct SmokeTest {
             try await testGoogleSearchGrounding(ai)
             try await testCodeExecution(ai)
             try await testLiveSession(ai)
+            #if canImport(FoundationModels)
+            if #available(macOS 26.0, iOS 26.0, visionOS 26.0, *) {
+                try await testFoundationModelsAdapter(apiKey: apiKey)
+            } else {
+                print("[8] Foundation Models adapter — skipped (requires macOS 26+/iOS 26+)")
+            }
+            #else
+            print("[8] Foundation Models adapter — skipped (FoundationModels not available in this SDK)")
+            #endif
 
             print("\n✓ All smoke tests passed.")
         } catch let err as ApiError {
@@ -216,3 +229,38 @@ actor ReceivedFlag {
     private(set) var value = false
     func set() { value = true }
 }
+
+// MARK: - 8. Foundation Models adapter
+
+#if canImport(FoundationModels)
+@available(macOS 26.0, iOS 26.0, visionOS 26.0, *)
+@Generable struct ColorSwatch {
+    @Guide(description: "A short, evocative name for the color")
+    var name: String
+    @Guide(description: "The color's hex code, like #1A2B3C")
+    var hex: String
+    @Guide(description: "A 1-sentence description of the color's mood")
+    var mood: String
+}
+
+@available(macOS 26.0, iOS 26.0, visionOS 26.0, *)
+func testFoundationModelsAdapter(apiKey: String) async throws {
+    print("[8] Foundation Models adapter (Generable structured output) …")
+    let session = try GeminiLanguageModelSession(
+        apiKey: apiKey,
+        instructions: "You generate small color palettes."
+    )
+    let response = try await session.respond(
+        to: "Invent one new color swatch inspired by an autumn forest at dusk.",
+        generating: ColorSwatch.self
+    )
+    let swatch = response.content
+    print("    → name=\"\(swatch.name)\" hex=\(swatch.hex)")
+    print("    → mood: \(swatch.mood)")
+
+    // Plain text via the same session shape (sanity check that respond(to:)
+    // still works alongside the Generable variant).
+    let plain = try await session.respond(to: "In one short sentence, what's the meaning of life?")
+    print("    → plain text: \(plain.content)")
+}
+#endif
