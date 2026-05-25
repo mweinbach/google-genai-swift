@@ -14,7 +14,7 @@ swift-genai/
 │   ├── GoogleGenAI/               # Main SDK library (109 .swift files)
 │   │   ├── Client.swift           # GoogleGenAI class — public entry point
 │   │   ├── APIClient.swift        # HTTP transport, retry, auth header injection
-│   │   ├── Auth.swift             # Auth protocol + DefaultAuth (API key / GoogleAuth stub)
+│   │   ├── Auth.swift             # Auth protocol + DefaultAuth (API key / service-account JWT)
 │   │   ├── BaseURL.swift          # Base URL resolution + actor-isolated defaults
 │   │   ├── Transformers.swift     # tContent / tTool / tBlobs / etc. (TS _transformers.ts)
 │   │   ├── *Module.swift          # Resource modules: Models, Batches, Caches, Files, Live
@@ -23,6 +23,8 @@ swift-genai/
 │   │   ├── Pagers.swift           # Pager<T>: AsyncSequence for paginated list responses
 │   │   ├── AFC.swift              # Automatic function calling helpers
 │   │   ├── Common.swift           # JSONValue, GenAIError, JSON-path helpers, jsonObject helpers
+│   │   ├── StreamingUTF8Decoder.swift # Streaming UTF-8 decoder (mirrors TextDecoder({stream:true}))
+│   │   ├── ServiceAccountCredential.swift # Vertex AI ADC: JWT signing + token exchange + caching
 │   │   ├── Errors.swift           # ApiError (server-returned)
 │   │   ├── Index.swift            # Public-surface anchor (typealiases)
 │   │   ├── InternalTypes.swift    # ReferenceImageAPIInternal & friends

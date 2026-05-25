@@ -166,11 +166,11 @@ let session = try await ai.live.connect(LiveConnectParameters(
 
 | Feature | JS | Swift |
 |---|---|---|
-| Auth | API key, ADC (service account), browser key | API key only (Developer API). Vertex ADC is on the roadmap — bring your own access token via `apiKey:` for now |
+| Auth | API key, ADC (service account), browser key | API key (Developer API). Vertex ADC via service-account keyfile (`GoogleAuthOptions.credentialsJSON` / `.keyFile`) or `GOOGLE_APPLICATION_CREDENTIALS` env var |
 | Node platform module | `import {GoogleGenAI} from '@google/genai'` (auto-detects node) | Single Foundation-based runtime; no node/web split |
 | MCP | Uses `@modelcontextprotocol/sdk` | No first-party Swift MCP SDK; bring your own `McpClient` |
 | `tools: [callable]` w/ async resolution | Auto-resolves to `Tool` during request encoding | Same — `ToolUnion.callable` is resolved via `await callable.tool()` before serializing |
-| Streaming buffering | `TextDecoder({stream: true})` (Unicode-safe per codepoint) | Byte-buffered (partial codepoints may defer); affects only edge cases at chunk boundaries |
+| Streaming buffering | `TextDecoder({stream: true})` (Unicode-safe per codepoint) | `StreamingUTF8Decoder` — mirrors `TextDecoder({stream: true})`, returns complete characters immediately, buffers only incomplete trailing multi-byte sequences |
 | Browser API key | Identical surface | Not applicable; iOS/macOS use the same surface as the server-side variant |
 
 ## What's in the same place

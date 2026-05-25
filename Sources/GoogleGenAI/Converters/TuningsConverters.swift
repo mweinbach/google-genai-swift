@@ -461,7 +461,279 @@ public func createTuningJobParametersPrivateToVertex(
     return toObject
 }
 
-public func getTuningJobParametersToMldev(
+public func distillationHyperParametersFromVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue],
+    rootObject: [String: JSONValue]? = nil
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromAdapterSize = getValueByPath(.object(fromObject), ["adapterSize"])
+    if case .null = fromAdapterSize {} else {
+        try setValueByPath(&toObject, ["adapterSize"], fromAdapterSize)
+    }
+
+    let fromEpochCount = getValueByPath(.object(fromObject), ["epochCount"])
+    if case .null = fromEpochCount {} else {
+        try setValueByPath(&toObject, ["epochCount"], fromEpochCount)
+    }
+
+    let fromLearningRateMultiplier = getValueByPath(.object(fromObject), ["learningRateMultiplier"])
+    if case .null = fromLearningRateMultiplier {} else {
+        try setValueByPath(&toObject, ["learningRateMultiplier"], fromLearningRateMultiplier)
+    }
+
+    let fromGenerationConfig = getValueByPath(.object(fromObject), ["generationConfig"])
+    if case .null = fromGenerationConfig {} else {
+        var fromGenerationConfigObj = fromGenerationConfig
+        if case .object(let dict) = fromGenerationConfig {
+            var parentCopy = parentObject
+            let result = try generationConfigFromVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy, rootObject: rootObject)
+            fromGenerationConfigObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["generationConfig"], fromGenerationConfigObj)
+    }
+
+    let fromLearningRate = getValueByPath(.object(fromObject), ["learningRate"])
+    if case .null = fromLearningRate {} else {
+        try setValueByPath(&toObject, ["learningRate"], fromLearningRate)
+    }
+
+    let fromBatchSize = getValueByPath(.object(fromObject), ["batchSize"])
+    if case .null = fromBatchSize {} else {
+        try setValueByPath(&toObject, ["batchSize"], fromBatchSize)
+    }
+
+    return toObject
+}
+
+public func distillationSamplingSpecFromVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue],
+    rootObject: [String: JSONValue]? = nil
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromBaseTeacherModel = getValueByPath(.object(fromObject), ["baseTeacherModel"])
+    if case .null = fromBaseTeacherModel {} else {
+        try setValueByPath(&toObject, ["baseTeacherModel"], fromBaseTeacherModel)
+    }
+
+    let fromTunedTeacherModelSource = getValueByPath(.object(fromObject), ["tunedTeacherModelSource"])
+    if case .null = fromTunedTeacherModelSource {} else {
+        try setValueByPath(&toObject, ["tunedTeacherModelSource"], fromTunedTeacherModelSource)
+    }
+
+    let fromValidationDatasetUri = getValueByPath(.object(fromObject), ["validationDatasetUri"])
+    if case .null = fromValidationDatasetUri {} else {
+        try setValueByPath(&toObject, ["validationDatasetUri"], fromValidationDatasetUri)
+    }
+
+    let fromPromptDatasetUri = getValueByPath(.object(fromObject), ["promptDatasetUri"])
+    if case .null = fromPromptDatasetUri {} else {
+        try setValueByPath(&toObject, ["promptDatasetUri"], fromPromptDatasetUri)
+    }
+
+    let fromHyperparameters = getValueByPath(.object(fromObject), ["hyperparameters"])
+    if case .null = fromHyperparameters {} else {
+        var fromHyperparametersObj = fromHyperparameters
+        if case .object(let dict) = fromHyperparameters {
+            var parentCopy = parentObject
+            let result = try distillationHyperParametersFromVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy, rootObject: rootObject)
+            fromHyperparametersObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["hyperparameters"], fromHyperparametersObj)
+    }
+
+    return toObject
+}
+
+public func distillationSpecFromVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue],
+    rootObject: [String: JSONValue]? = nil
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromPromptDatasetUri = getValueByPath(.object(fromObject), ["promptDatasetUri"])
+    if case .null = fromPromptDatasetUri {} else {
+        try setValueByPath(&toObject, ["promptDatasetUri"], fromPromptDatasetUri)
+    }
+
+    let fromBaseTeacherModel = getValueByPath(.object(fromObject), ["baseTeacherModel"])
+    if case .null = fromBaseTeacherModel {} else {
+        try setValueByPath(&toObject, ["baseTeacherModel"], fromBaseTeacherModel)
+    }
+
+    let fromHyperParameters = getValueByPath(.object(fromObject), ["hyperParameters"])
+    if case .null = fromHyperParameters {} else {
+        var fromHyperParametersObj = fromHyperParameters
+        if case .object(let dict) = fromHyperParameters {
+            var parentCopy = parentObject
+            let result = try distillationHyperParametersFromVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy, rootObject: rootObject)
+            fromHyperParametersObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["hyperParameters"], fromHyperParametersObj)
+    }
+
+    let fromPipelineRootDirectory = getValueByPath(.object(fromObject), ["pipelineRootDirectory"])
+    if case .null = fromPipelineRootDirectory {} else {
+        try setValueByPath(&toObject, ["pipelineRootDirectory"], fromPipelineRootDirectory)
+    }
+
+    let fromStudentModel = getValueByPath(.object(fromObject), ["studentModel"])
+    if case .null = fromStudentModel {} else {
+        try setValueByPath(&toObject, ["studentModel"], fromStudentModel)
+    }
+
+    let fromTrainingDatasetUri = getValueByPath(.object(fromObject), ["trainingDatasetUri"])
+    if case .null = fromTrainingDatasetUri {} else {
+        try setValueByPath(&toObject, ["trainingDatasetUri"], fromTrainingDatasetUri)
+    }
+
+    let fromTunedTeacherModelSource = getValueByPath(.object(fromObject), ["tunedTeacherModelSource"])
+    if case .null = fromTunedTeacherModelSource {} else {
+        try setValueByPath(&toObject, ["tunedTeacherModelSource"], fromTunedTeacherModelSource)
+    }
+
+    let fromValidationDatasetUri = getValueByPath(.object(fromObject), ["validationDatasetUri"])
+    if case .null = fromValidationDatasetUri {} else {
+        try setValueByPath(&toObject, ["validationDatasetUri"], fromValidationDatasetUri)
+    }
+
+    let fromTuningMode = getValueByPath(.object(fromObject), ["tuningMode"])
+    if case .null = fromTuningMode {} else {
+        try setValueByPath(&toObject, ["tuningMode"], fromTuningMode)
+    }
+
+    return toObject
+}
+
+public func generationConfigFromVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue],
+    rootObject: [String: JSONValue]? = nil
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromModelSelectionConfig = getValueByPath(.object(fromObject), ["modelConfig"])
+    if case .null = fromModelSelectionConfig {} else {
+        try setValueByPath(&toObject, ["modelSelectionConfig"], fromModelSelectionConfig)
+    }
+
+    let fromResponseJsonSchema = getValueByPath(.object(fromObject), ["responseJsonSchema"])
+    if case .null = fromResponseJsonSchema {} else {
+        try setValueByPath(&toObject, ["responseJsonSchema"], fromResponseJsonSchema)
+    }
+
+    let fromAudioTimestamp = getValueByPath(.object(fromObject), ["audioTimestamp"])
+    if case .null = fromAudioTimestamp {} else {
+        try setValueByPath(&toObject, ["audioTimestamp"], fromAudioTimestamp)
+    }
+
+    let fromCandidateCount = getValueByPath(.object(fromObject), ["candidateCount"])
+    if case .null = fromCandidateCount {} else {
+        try setValueByPath(&toObject, ["candidateCount"], fromCandidateCount)
+    }
+
+    let fromEnableAffectiveDialog = getValueByPath(.object(fromObject), ["enableAffectiveDialog"])
+    if case .null = fromEnableAffectiveDialog {} else {
+        try setValueByPath(&toObject, ["enableAffectiveDialog"], fromEnableAffectiveDialog)
+    }
+
+    let fromFrequencyPenalty = getValueByPath(.object(fromObject), ["frequencyPenalty"])
+    if case .null = fromFrequencyPenalty {} else {
+        try setValueByPath(&toObject, ["frequencyPenalty"], fromFrequencyPenalty)
+    }
+
+    let fromLogprobs = getValueByPath(.object(fromObject), ["logprobs"])
+    if case .null = fromLogprobs {} else {
+        try setValueByPath(&toObject, ["logprobs"], fromLogprobs)
+    }
+
+    let fromMaxOutputTokens = getValueByPath(.object(fromObject), ["maxOutputTokens"])
+    if case .null = fromMaxOutputTokens {} else {
+        try setValueByPath(&toObject, ["maxOutputTokens"], fromMaxOutputTokens)
+    }
+
+    let fromMediaResolution = getValueByPath(.object(fromObject), ["mediaResolution"])
+    if case .null = fromMediaResolution {} else {
+        try setValueByPath(&toObject, ["mediaResolution"], fromMediaResolution)
+    }
+
+    let fromPresencePenalty = getValueByPath(.object(fromObject), ["presencePenalty"])
+    if case .null = fromPresencePenalty {} else {
+        try setValueByPath(&toObject, ["presencePenalty"], fromPresencePenalty)
+    }
+
+    let fromResponseLogprobs = getValueByPath(.object(fromObject), ["responseLogprobs"])
+    if case .null = fromResponseLogprobs {} else {
+        try setValueByPath(&toObject, ["responseLogprobs"], fromResponseLogprobs)
+    }
+
+    let fromResponseMimeType = getValueByPath(.object(fromObject), ["responseMimeType"])
+    if case .null = fromResponseMimeType {} else {
+        try setValueByPath(&toObject, ["responseMimeType"], fromResponseMimeType)
+    }
+
+    let fromResponseModalities = getValueByPath(.object(fromObject), ["responseModalities"])
+    if case .null = fromResponseModalities {} else {
+        try setValueByPath(&toObject, ["responseModalities"], fromResponseModalities)
+    }
+
+    let fromResponseSchema = getValueByPath(.object(fromObject), ["responseSchema"])
+    if case .null = fromResponseSchema {} else {
+        try setValueByPath(&toObject, ["responseSchema"], fromResponseSchema)
+    }
+
+    let fromRoutingConfig = getValueByPath(.object(fromObject), ["routingConfig"])
+    if case .null = fromRoutingConfig {} else {
+        try setValueByPath(&toObject, ["routingConfig"], fromRoutingConfig)
+    }
+
+    let fromSeed = getValueByPath(.object(fromObject), ["seed"])
+    if case .null = fromSeed {} else {
+        try setValueByPath(&toObject, ["seed"], fromSeed)
+    }
+
+    let fromSpeechConfig = getValueByPath(.object(fromObject), ["speechConfig"])
+    if case .null = fromSpeechConfig {} else {
+        try setValueByPath(&toObject, ["speechConfig"], fromSpeechConfig)
+    }
+
+    let fromStopSequences = getValueByPath(.object(fromObject), ["stopSequences"])
+    if case .null = fromStopSequences {} else {
+        try setValueByPath(&toObject, ["stopSequences"], fromStopSequences)
+    }
+
+    let fromTemperature = getValueByPath(.object(fromObject), ["temperature"])
+    if case .null = fromTemperature {} else {
+        try setValueByPath(&toObject, ["temperature"], fromTemperature)
+    }
+
+    let fromThinkingConfig = getValueByPath(.object(fromObject), ["thinkingConfig"])
+    if case .null = fromThinkingConfig {} else {
+        try setValueByPath(&toObject, ["thinkingConfig"], fromThinkingConfig)
+    }
+
+    let fromTopK = getValueByPath(.object(fromObject), ["topK"])
+    if case .null = fromTopK {} else {
+        try setValueByPath(&toObject, ["topK"], fromTopK)
+    }
+
+    let fromTopP = getValueByPath(.object(fromObject), ["topP"])
+    if case .null = fromTopP {} else {
+        try setValueByPath(&toObject, ["topP"], fromTopP)
+    }
+
+    return toObject
+}
+
+ public func getTuningJobParametersToMldev(
     apiClient: ApiClient,
     fromObject: [String: JSONValue],
     parentObject: inout [String: JSONValue],
@@ -824,7 +1096,13 @@ public func tuningJobFromVertex(
 
     let fromDistillationSpec = getValueByPath(.object(fromObject), ["distillationSpec"])
     if case .null = fromDistillationSpec {} else {
-        try setValueByPath(&toObject, ["distillationSpec"], fromDistillationSpec)
+        var fromDistillationSpecObj = fromDistillationSpec
+        if case .object(let dict) = fromDistillationSpec {
+            var parentCopy = parentObject
+            let result = try distillationSpecFromVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy, rootObject: rootObject)
+            fromDistillationSpecObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["distillationSpec"], fromDistillationSpecObj)
     }
 
     let fromTuningDataStats = getValueByPath(.object(fromObject), ["tuningDataStats"])
@@ -897,14 +1175,25 @@ public func tuningJobFromVertex(
         try setValueByPath(&toObject, ["veoTuningSpec"], fromVeoTuningSpec)
     }
 
-    let fromDistillationSamplingSpec = getValueByPath(.object(fromObject), ["distillationSamplingSpec"])
-    if case .null = fromDistillationSamplingSpec {} else {
-        try setValueByPath(&toObject, ["distillationSamplingSpec"], fromDistillationSamplingSpec)
-    }
-
     let fromTuningJobMetadata = getValueByPath(.object(fromObject), ["tuningJobMetadata"])
     if case .null = fromTuningJobMetadata {} else {
         try setValueByPath(&toObject, ["tuningJobMetadata"], fromTuningJobMetadata)
+    }
+
+    let fromVeoLoraTuningSpec = getValueByPath(.object(fromObject), ["veoLoraTuningSpec"])
+    if case .null = fromVeoLoraTuningSpec {} else {
+        try setValueByPath(&toObject, ["veoLoraTuningSpec"], fromVeoLoraTuningSpec)
+    }
+
+    let fromDistillationSamplingSpec = getValueByPath(.object(fromObject), ["distillationSamplingSpec"])
+    if case .null = fromDistillationSamplingSpec {} else {
+        var fromDistillationSamplingSpecObj = fromDistillationSamplingSpec
+        if case .object(let dict) = fromDistillationSamplingSpec {
+            var parentCopy = parentObject
+            let result = try distillationSamplingSpecFromVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy, rootObject: rootObject)
+            fromDistillationSamplingSpecObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["distillationSamplingSpec"], fromDistillationSamplingSpecObj)
     }
 
     return toObject

@@ -43,15 +43,52 @@ let ai = try GoogleGenAI(
 
 ### Service account / ADC (Application Default Credentials)
 
-**Currently unsupported in the Swift port.** The JavaScript SDK delegates to `google-auth-library` which signs short-lived JWTs from a service-account JSON file; the Swift port doesn't include a JWT-signing implementation.
+The Swift SDK supports service-account authentication using `Security.framework` for RS256 JWT signing — no external dependencies required. This mirrors the JavaScript SDK's delegation to `google-auth-library`.
 
-If you call `GoogleGenAI(enterprise: true, project:..., location:...)` without providing an API key, the auth layer throws `GenAIError.unsupported` with a TODO pointing at a future Swift JWT implementation.
+```swift
+let ai = try GoogleGenAI(
+    enterprise: true,
+    project: "your-project",
+    location: "us-central1",
+    googleAuthOptions: GoogleAuthOptions(
+        keyFile: "/path/to/service-account.json"
+    )
+)
+```
 
-**Workarounds:**
-1. Issue a short-lived access token via `gcloud auth print-access-token` (or your IAM token service) and pass it as `apiKey:`. Refresh before the 1-hour expiry.
-2. Run a tiny sidecar that mints tokens and inject via `HttpOptions.headers`.
+Or provide the keyfile inline:
 
-A native Swift `service-account` flow is on the roadmap — track via the [`Auth.swift`](../Sources/GoogleGenAI/Auth.swift) TODO.
+```swift
+let keyData = try Data(contentsOf: URL(fileURLWithPath: "service-account.json"))
+let ai = try GoogleGenAI(
+    enterprise: true,
+    project: "your-project",
+    location: "us-central1",
+    googleAuthOptions: GoogleAuthOptions(
+        credentialsJSON: keyData
+    )
+)
+```
+
+Or set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to a service-account JSON keyfile:
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+export GOOGLE_GENAI_USE_ENTERPRISE=true
+export GOOGLE_CLOUD_PROJECT=your-project
+export GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+```swift
+let ai = try GoogleGenAI()
+```
+
+The SDK automatically:
+1. Parses the service-account JSON keyfile (`client_email`, `private_key`, `token_uri`)
+2. Constructs and signs a JWT using RS256 (RSA-SHA256) via `Security.framework`
+3. Exchanges the JWT for an OAuth2 access token at the keyfile's `token_uri`
+4. Caches the access token and refreshes it before the 1-hour expiry
+5. Sets `Authorization: Bearer <token>` on every outgoing request
 
 ## Vertex-only features
 

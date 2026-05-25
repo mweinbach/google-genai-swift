@@ -61,10 +61,6 @@ public struct EditImageParameters: Codable, Sendable {
 
 /// Optional parameters for the embed_content method.
 public struct EmbedContentConfig: Codable, Sendable {
-    /// Used to override HTTP request options.
-    public var httpOptions: HttpOptions?
-    /// Abort signal which can be used to cancel the request.
-    public var abortSignal: AbortSignal?
     /// Type of task for which the embedding will be used.
     public var taskType: String?
     /// Title for the text. Only applicable when TaskType is `RETRIEVAL_DOCUMENT`.
@@ -79,20 +75,22 @@ public struct EmbedContentConfig: Codable, Sendable {
     public var documentOcr: Bool?
     /// Gemini Enterprise Agent Platform only. Whether to extract audio from video content.
     public var audioTrackExtraction: Bool?
+    /// Used to override HTTP request options.
+    public var httpOptions: HttpOptions?
+    /// Abort signal which can be used to cancel the request.
+    public var abortSignal: AbortSignal?
 
     public init(
-        httpOptions: HttpOptions? = nil,
-        abortSignal: AbortSignal? = nil,
         taskType: String? = nil,
         title: String? = nil,
         outputDimensionality: Double? = nil,
         mimeType: String? = nil,
         autoTruncate: Bool? = nil,
         documentOcr: Bool? = nil,
-        audioTrackExtraction: Bool? = nil
+        audioTrackExtraction: Bool? = nil,
+        httpOptions: HttpOptions? = nil,
+        abortSignal: AbortSignal? = nil
     ) {
-        self.httpOptions = httpOptions
-        self.abortSignal = abortSignal
         self.taskType = taskType
         self.title = title
         self.outputDimensionality = outputDimensionality
@@ -100,6 +98,8 @@ public struct EmbedContentConfig: Codable, Sendable {
         self.autoTruncate = autoTruncate
         self.documentOcr = documentOcr
         self.audioTrackExtraction = audioTrackExtraction
+        self.httpOptions = httpOptions
+        self.abortSignal = abortSignal
     }
 }
 

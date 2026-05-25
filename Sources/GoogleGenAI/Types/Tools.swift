@@ -139,9 +139,11 @@ public struct ModelSelectionConfig: Codable, Sendable {
 public struct ComputerUse: Codable, Sendable {
     public var environment: Environment?
     public var excludedPredefinedFunctions: [String]?
-    public init(environment: Environment? = nil, excludedPredefinedFunctions: [String]? = nil) {
+    public var enablePromptInjectionDetection: Bool?
+    public init(environment: Environment? = nil, excludedPredefinedFunctions: [String]? = nil, enablePromptInjectionDetection: Bool? = nil) {
         self.environment = environment
         self.excludedPredefinedFunctions = excludedPredefinedFunctions
+        self.enablePromptInjectionDetection = enablePromptInjectionDetection
     }
 }
 

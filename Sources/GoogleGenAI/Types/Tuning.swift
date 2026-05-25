@@ -177,31 +177,35 @@ public struct PreferenceOptimizationSpec: Codable, Sendable {
     }
 }
 
-/// Hyperparameters for distillation.
+/// Distillation hyperparameters for tuning.
 public struct DistillationHyperParameters: Codable, Sendable {
-    /// Optional. Adapter size for distillation.
+    /// The size of the adapter. Can be 'small', 'medium', or 'large'.
     public var adapterSize: AdapterSize?
-    /// Optional. Number of complete passes the model makes over the entire training dataset during training.
+    /// Number of complete passes the model makes over the entire training dataset during training.
     public var epochCount: String?
-    /// Optional. Multiplier for adjusting the default learning rate.
+    /// Multiplier for adjusting the default learning rate.
     public var learningRateMultiplier: Double?
-    /// The batch size hyperparameter for tuning. OSS models only.
-    public var batchSize: Double?
-    /// The learning rate for tuning. OSS models only.
+    /// Generation config for Distillation teacher model sampling.
+    public var generationConfig: GenerationConfig?
+    /// The learning rate for distillation tuning.
     public var learningRate: Double?
+    /// Batch size for tuning. This feature is only available for open source models.
+    public var batchSize: Double?
 
     public init(
         adapterSize: AdapterSize? = nil,
         epochCount: String? = nil,
         learningRateMultiplier: Double? = nil,
-        batchSize: Double? = nil,
-        learningRate: Double? = nil
+        generationConfig: GenerationConfig? = nil,
+        learningRate: Double? = nil,
+        batchSize: Double? = nil
     ) {
         self.adapterSize = adapterSize
         self.epochCount = epochCount
         self.learningRateMultiplier = learningRateMultiplier
-        self.batchSize = batchSize
+        self.generationConfig = generationConfig
         self.learningRate = learningRate
+        self.batchSize = batchSize
     }
 }
 
@@ -223,7 +227,7 @@ public struct DistillationSpec: Codable, Sendable {
     public var tunedTeacherModelSource: String?
     /// Optional. Cloud Storage path to file containing validation dataset for tuning.
     public var validationDatasetUri: String?
-    /// Tuning mode for tuning.
+    /// Optional. Specifies the tuning mode for distillation (sft part). This feature is only available for open source models.
     public var tuningMode: TuningMode?
 
     public init(
@@ -853,19 +857,28 @@ public struct FullFineTuningSpec: Codable, Sendable {
 public struct VeoHyperParameters: Codable, Sendable {
     public var epochCount: String?
     public var learningRateMultiplier: Double?
+    /// The tuning task for Veo.
     public var tuningTask: TuningTask?
     public var veoDataMixtureRatio: Double?
+    /// Optional. The adapter size for LoRA tuning.
+    public var adapterSize: AdapterSize?
+    /// The speed of the tuning job. Only supported for Veo 3.0 models.
+    public var tuningSpeed: TuningSpeed?
 
     public init(
         epochCount: String? = nil,
         learningRateMultiplier: Double? = nil,
         tuningTask: TuningTask? = nil,
-        veoDataMixtureRatio: Double? = nil
+        veoDataMixtureRatio: Double? = nil,
+        adapterSize: AdapterSize? = nil,
+        tuningSpeed: TuningSpeed? = nil
     ) {
         self.epochCount = epochCount
         self.learningRateMultiplier = learningRateMultiplier
         self.tuningTask = tuningTask
         self.veoDataMixtureRatio = veoDataMixtureRatio
+        self.adapterSize = adapterSize
+        self.tuningSpeed = tuningSpeed
     }
 }
 
@@ -886,20 +899,26 @@ public struct VeoTuningSpec: Codable, Sendable {
     }
 }
 
-/// Spec for creating a distilled dataset in Vertex Dataset. This data type is not supported in Gemini API.
+/// Distillation sampling spec for tuning.
 public struct DistillationSamplingSpec: Codable, Sendable {
     public var baseTeacherModel: String?
     public var tunedTeacherModelSource: String?
     public var validationDatasetUri: String?
+    public var promptDatasetUri: String?
+    public var hyperparameters: DistillationHyperParameters?
 
     public init(
         baseTeacherModel: String? = nil,
         tunedTeacherModelSource: String? = nil,
-        validationDatasetUri: String? = nil
+        validationDatasetUri: String? = nil,
+        promptDatasetUri: String? = nil,
+        hyperparameters: DistillationHyperParameters? = nil
     ) {
         self.baseTeacherModel = baseTeacherModel
         self.tunedTeacherModelSource = tunedTeacherModelSource
         self.validationDatasetUri = validationDatasetUri
+        self.promptDatasetUri = promptDatasetUri
+        self.hyperparameters = hyperparameters
     }
 }
 
@@ -916,6 +935,30 @@ public struct TuningJobMetadata: Codable, Sendable {
     ) {
         self.completedEpochCount = completedEpochCount
         self.completedStepCount = completedStepCount
+    }
+}
+
+/// Tuning Spec for Veo LoRA Model Tuning. This data type is not supported in Gemini API.
+public struct VeoLoraTuningSpec: Codable, Sendable {
+    /// Optional. Hyperparameters for Veo LoRA.
+    public var hyperParameters: VeoHyperParameters?
+    /// Required. Training dataset used for tuning.
+    public var trainingDatasetUri: String?
+    /// Optional. Validation dataset used for tuning.
+    public var validationDatasetUri: String?
+    /// Optional. The orientation of the video. Defaults to LANDSCAPE.
+    public var videoOrientation: VideoOrientation?
+
+    public init(
+        hyperParameters: VeoHyperParameters? = nil,
+        trainingDatasetUri: String? = nil,
+        validationDatasetUri: String? = nil,
+        videoOrientation: VideoOrientation? = nil
+    ) {
+        self.hyperParameters = hyperParameters
+        self.trainingDatasetUri = trainingDatasetUri
+        self.validationDatasetUri = validationDatasetUri
+        self.videoOrientation = videoOrientation
     }
 }
 
@@ -979,10 +1022,11 @@ public struct TuningJob: Codable, Sendable {
     public var tuningJobState: TuningJobState?
     /// Tuning Spec for Veo Tuning.
     public var veoTuningSpec: VeoTuningSpec?
-    /// Optional. Spec for creating a distillation dataset.
-    public var distillationSamplingSpec: DistillationSamplingSpec?
     /// Output only. Tuning Job metadata.
     public var tuningJobMetadata: TuningJobMetadata?
+    /// Tuning Spec for Veo LoRA Tuning.
+    public var veoLoraTuningSpec: VeoLoraTuningSpec?
+    public var distillationSamplingSpec: DistillationSamplingSpec?
 
     public init(
         sdkHttpResponse: HttpResponse? = nil,
@@ -1014,8 +1058,9 @@ public struct TuningJob: Codable, Sendable {
         tunedModelDisplayName: String? = nil,
         tuningJobState: TuningJobState? = nil,
         veoTuningSpec: VeoTuningSpec? = nil,
-        distillationSamplingSpec: DistillationSamplingSpec? = nil,
-        tuningJobMetadata: TuningJobMetadata? = nil
+        tuningJobMetadata: TuningJobMetadata? = nil,
+        veoLoraTuningSpec: VeoLoraTuningSpec? = nil,
+        distillationSamplingSpec: DistillationSamplingSpec? = nil
     ) {
         self.sdkHttpResponse = sdkHttpResponse
         self.name = name
@@ -1046,8 +1091,9 @@ public struct TuningJob: Codable, Sendable {
         self.tunedModelDisplayName = tunedModelDisplayName
         self.tuningJobState = tuningJobState
         self.veoTuningSpec = veoTuningSpec
-        self.distillationSamplingSpec = distillationSamplingSpec
         self.tuningJobMetadata = tuningJobMetadata
+        self.veoLoraTuningSpec = veoLoraTuningSpec
+        self.distillationSamplingSpec = distillationSamplingSpec
     }
 }
 

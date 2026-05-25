@@ -492,9 +492,13 @@ public struct RagChunkPageSpan: Codable, Sendable {
 public struct RagChunk: Codable, Sendable {
     public var pageSpan: RagChunkPageSpan?
     public var text: String?
-    public init(pageSpan: RagChunkPageSpan? = nil, text: String? = nil) {
+    public var chunkId: String?
+    public var fileId: String?
+    public init(pageSpan: RagChunkPageSpan? = nil, text: String? = nil, chunkId: String? = nil, fileId: String? = nil) {
         self.pageSpan = pageSpan
         self.text = text
+        self.chunkId = chunkId
+        self.fileId = fileId
     }
 }
 

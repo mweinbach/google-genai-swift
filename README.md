@@ -79,6 +79,7 @@ let ai = try GoogleGenAI(
 | `GOOGLE_GENAI_USE_VERTEXAI` | `vertexai` (boolean) |
 | `GOOGLE_CLOUD_PROJECT` | `project` |
 | `GOOGLE_CLOUD_LOCATION` | `location` |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Path to service-account JSON keyfile (used when `enterprise: true` and no API key) |
 
 ---
 
@@ -289,4 +290,3 @@ Apache-2.0, matching the upstream [`googleapis/js-genai`](https://github.com/goo
 
 - ✅ All 9 porting waves complete (`Wave 1`…`Wave 9`); see commit history
 - ✅ Verified end-to-end against the live Gemini API (`swift run SmokeTest`)
-- ⚠️ Known gaps: Vertex AI service-account ADC auth (needs Swift JWT library); SSE decoder is byte- not codepoint-streaming. See [`PORTING.md`](PORTING.md).

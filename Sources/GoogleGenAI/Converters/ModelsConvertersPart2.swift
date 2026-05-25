@@ -1142,6 +1142,87 @@ public func partToMldev(
     return toObject
 }
 
+// MARK: - codeExecutionResultToVertex
+
+public func codeExecutionResultToVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue]
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromOutcome = getValueByPath(.object(fromObject), ["outcome"])
+    if case .null = fromOutcome {} else {
+        try setValueByPath(&toObject, ["outcome"], fromOutcome)
+    }
+
+    let fromOutput = getValueByPath(.object(fromObject), ["output"])
+    if case .null = fromOutput {} else {
+        try setValueByPath(&toObject, ["output"], fromOutput)
+    }
+
+    let id = getValueByPath(.object(fromObject), ["id"])
+    if case .null = id {} else {
+        throw GenAIError.runtime("id parameter is only supported in Gemini Developer API mode, not in Gemini Enterprise Agent Platform mode.")
+    }
+
+    return toObject
+}
+
+// MARK: - executableCodeToVertex
+
+public func executableCodeToVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue]
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromCode = getValueByPath(.object(fromObject), ["code"])
+    if case .null = fromCode {} else {
+        try setValueByPath(&toObject, ["code"], fromCode)
+    }
+
+    let fromLanguage = getValueByPath(.object(fromObject), ["language"])
+    if case .null = fromLanguage {} else {
+        try setValueByPath(&toObject, ["language"], fromLanguage)
+    }
+
+    let id = getValueByPath(.object(fromObject), ["id"])
+    if case .null = id {} else {
+        throw GenAIError.runtime("id parameter is only supported in Gemini Developer API mode, not in Gemini Enterprise Agent Platform mode.")
+    }
+
+    return toObject
+}
+
+// MARK: - computerUseToVertex
+
+public func computerUseToVertex(
+    apiClient: ApiClient,
+    fromObject: [String: JSONValue],
+    parentObject: inout [String: JSONValue]
+) throws -> [String: JSONValue] {
+    var toObject: [String: JSONValue] = [:]
+
+    let fromEnvironment = getValueByPath(.object(fromObject), ["environment"])
+    if case .null = fromEnvironment {} else {
+        try setValueByPath(&toObject, ["environment"], fromEnvironment)
+    }
+
+    let fromExcludedPredefinedFunctions = getValueByPath(.object(fromObject), ["excludedPredefinedFunctions"])
+    if case .null = fromExcludedPredefinedFunctions {} else {
+        try setValueByPath(&toObject, ["excludedPredefinedFunctions"], fromExcludedPredefinedFunctions)
+    }
+
+    let enablePromptInjectionDetection = getValueByPath(.object(fromObject), ["enablePromptInjectionDetection"])
+    if case .null = enablePromptInjectionDetection {} else {
+        throw GenAIError.runtime("enablePromptInjectionDetection parameter is only supported in Gemini Developer API mode, not in Gemini Enterprise Agent Platform mode.")
+    }
+
+    return toObject
+}
+
 // MARK: - partToVertex
 
 public func partToVertex(
@@ -1159,12 +1240,24 @@ public func partToVertex(
 
     let fromCodeExecutionResult = getValueByPath(.object(fromObject), ["codeExecutionResult"])
     if case .null = fromCodeExecutionResult {} else {
-        try setValueByPath(&toObject, ["codeExecutionResult"], fromCodeExecutionResult)
+        var fromCodeExecutionResultObj = fromCodeExecutionResult
+        if case .object(let dict) = fromCodeExecutionResult {
+            var parentCopy = parentObject
+            let result = try codeExecutionResultToVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy)
+            fromCodeExecutionResultObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["codeExecutionResult"], fromCodeExecutionResultObj)
     }
 
     let fromExecutableCode = getValueByPath(.object(fromObject), ["executableCode"])
     if case .null = fromExecutableCode {} else {
-        try setValueByPath(&toObject, ["executableCode"], fromExecutableCode)
+        var fromExecutableCodeObj = fromExecutableCode
+        if case .object(let dict) = fromExecutableCode {
+            var parentCopy = parentObject
+            let result = try executableCodeToVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy)
+            fromExecutableCodeObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["executableCode"], fromExecutableCodeObj)
     }
 
     let fromFileData = getValueByPath(.object(fromObject), ["fileData"])
@@ -1862,7 +1955,13 @@ public func toolToVertex(
 
     let fromComputerUse = getValueByPath(.object(fromObject), ["computerUse"])
     if case .null = fromComputerUse {} else {
-        try setValueByPath(&toObject, ["computerUse"], fromComputerUse)
+        var fromComputerUseObj = fromComputerUse
+        if case .object(let dict) = fromComputerUse {
+            var parentCopy = parentObject
+            let result = try computerUseToVertex(apiClient: apiClient, fromObject: dict, parentObject: &parentCopy)
+            fromComputerUseObj = .object(result)
+        }
+        try setValueByPath(&toObject, ["computerUse"], fromComputerUseObj)
     }
 
     let fileSearch = getValueByPath(.object(fromObject), ["fileSearch"])

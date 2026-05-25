@@ -12,7 +12,7 @@ private let CONTENT_TYPE_HEADER = "Content-Type"
 private let SERVER_TIMEOUT_HEADER = "X-Server-Timeout"
 private let USER_AGENT_HEADER = "User-Agent"
 public let GOOGLE_API_CLIENT_HEADER = "x-goog-api-client"
-public let SDK_VERSION = "2.5.0" // x-release-please-version
+public let SDK_VERSION = "2.6.0" // x-release-please-version
 private let LIBRARY_LABEL = "google-genai-sdk/\(SDK_VERSION)"
 private let VERTEX_AI_API_DEFAULT_VERSION = "v1beta1"
 private let GOOGLE_AI_API_DEFAULT_VERSION = "v1beta"
@@ -575,6 +575,10 @@ public final class ApiClient: GeminiNextGenAPIClientAdapter, @unchecked Sendable
 
     /// Parses a Server-Sent-Events byte stream into `HttpResponse` chunks. Each event's
     /// `data:` payload becomes one yielded HttpResponse with the original headers/status.
+    ///
+    /// Uses `StreamingUTF8Decoder` (mirrors `TextDecoder({stream: true})`) so that a
+    /// complete SSE event is never deferred because of a trailing incomplete multi-byte
+    /// UTF-8 character at a TCP chunk boundary.
     public func processStreamResponse(
         byteStream: URLSession.AsyncBytes,
         response: HTTPURLResponse
@@ -582,70 +586,85 @@ public final class ApiClient: GeminiNextGenAPIClientAdapter, @unchecked Sendable
         return AsyncThrowingStream { continuation in
             let task = Task {
                 do {
+                    let utf8Decoder = StreamingUTF8Decoder()
                     var buffer = ""
                     let dataPrefix = "data:"
                     let delimiters = ["\n\n", "\r\r", "\r\n\r\n"]
-                    var pendingBytes = Data()
+                    var chunkBuffer = Data()
 
                     for try await byte in byteStream {
                         try Task.checkCancellation()
-                        pendingBytes.append(byte)
-                        // Try to decode as UTF-8 incrementally — flush full chunks when they
-                        // contain a delimiter.
-                        if let chunkString = String(data: pendingBytes, encoding: .utf8) {
-                            pendingBytes.removeAll(keepingCapacity: true)
-                            // Detect inline server-side error JSON (rare — usually arrives mid-stream
-                            // before any SSE delimiter on auth/quota failures).
-                            if let errJson = try? JSONDecoder().decode(JSONValue.self, from: Data(chunkString.utf8)),
-                               case .object(let obj) = errJson,
-                               case .object(let errorObj) = obj["error"] ?? .null {
-                                if case .int(let code) = errorObj["code"] ?? .null,
-                                   code >= 400 && code < 600 {
-                                    let statusStr: String
-                                    if case .string(let s) = errorObj["status"] ?? .null { statusStr = s } else { statusStr = "" }
-                                    let errorMessage = "got status: \(statusStr). \(chunkString)"
-                                    throw ApiError(message: errorMessage, status: Int(code))
+                        chunkBuffer.append(byte)
+
+                        let shouldDecode = byte == 0x0A || byte == 0x0D || chunkBuffer.count >= 8192
+                        guard shouldDecode else { continue }
+
+                        let decoded = utf8Decoder.decode(chunkBuffer)
+                        chunkBuffer.removeAll(keepingCapacity: true)
+
+                        guard !decoded.isEmpty else { continue }
+
+                        // Detect inline server-side error JSON (rare — usually arrives mid-stream
+                        // before any SSE delimiter on auth/quota failures).
+                        if let errJson = try? JSONDecoder().decode(JSONValue.self, from: Data(decoded.utf8)),
+                           case .object(let obj) = errJson,
+                           case .object(let errorObj) = obj["error"] ?? .null {
+                            if case .int(let code) = errorObj["code"] ?? .null,
+                               code >= 400 && code < 600 {
+                                let statusStr: String
+                                if case .string(let s) = errorObj["status"] ?? .null { statusStr = s } else { statusStr = "" }
+                                let errorMessage = "got status: \(statusStr). \(decoded)"
+                                throw ApiError(message: errorMessage, status: Int(code))
+                            }
+                        }
+                        buffer.append(decoded)
+
+                        // Drain complete events from the buffer.
+                        while true {
+                            var delimiterIndex: String.Index? = nil
+                            var delimiterLength = 0
+                            for delimiter in delimiters {
+                                if let r = buffer.range(of: delimiter) {
+                                    if delimiterIndex == nil || r.lowerBound < delimiterIndex! {
+                                        delimiterIndex = r.lowerBound
+                                        delimiterLength = delimiter.count
+                                    }
                                 }
                             }
-                            buffer.append(chunkString)
+                            guard let idx = delimiterIndex else { break }
 
-                            // Drain complete events from the buffer.
-                            while true {
-                                var delimiterIndex: String.Index? = nil
-                                var delimiterLength = 0
-                                for delimiter in delimiters {
-                                    if let r = buffer.range(of: delimiter) {
-                                        if delimiterIndex == nil || r.lowerBound < delimiterIndex! {
-                                            delimiterIndex = r.lowerBound
-                                            delimiterLength = delimiter.count
-                                        }
+                            let eventString = String(buffer[..<idx])
+                            let afterDelim = buffer.index(idx, offsetBy: delimiterLength)
+                            buffer = String(buffer[afterDelim...])
+
+                            let trimmedEvent = eventString.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if trimmedEvent.hasPrefix(dataPrefix) {
+                                let processed = String(trimmedEvent.dropFirst(dataPrefix.count))
+                                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                                var headers: [String: String] = [:]
+                                for (k, v) in response.allHeaderFields {
+                                    if let ks = k as? String, let vs = v as? String {
+                                        headers[ks] = vs
                                     }
                                 }
-                                guard let idx = delimiterIndex else { break }
-
-                                let eventString = String(buffer[..<idx])
-                                let afterDelim = buffer.index(idx, offsetBy: delimiterLength)
-                                buffer = String(buffer[afterDelim...])
-
-                                let trimmedEvent = eventString.trimmingCharacters(in: .whitespacesAndNewlines)
-                                if trimmedEvent.hasPrefix(dataPrefix) {
-                                    let processed = String(trimmedEvent.dropFirst(dataPrefix.count))
-                                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                                    var headers: [String: String] = [:]
-                                    for (k, v) in response.allHeaderFields {
-                                        if let ks = k as? String, let vs = v as? String {
-                                            headers[ks] = vs
-                                        }
-                                    }
-                                    let partial = HttpResponse(
-                                        headers: headers,
-                                        bodyData: Data(processed.utf8)
-                                    )
-                                    continuation.yield(partial)
-                                }
+                                let partial = HttpResponse(
+                                    headers: headers,
+                                    bodyData: Data(processed.utf8)
+                                )
+                                continuation.yield(partial)
                             }
                         }
                     }
+
+                    // Flush any remaining bytes through the UTF-8 decoder.
+                    if !chunkBuffer.isEmpty {
+                        let decoded = utf8Decoder.decode(chunkBuffer)
+                        if !decoded.isEmpty { buffer.append(decoded) }
+                    }
+                    if let remaining = utf8Decoder.flush(), !remaining.isEmpty {
+                        buffer.append(remaining)
+                    }
+
                     // End of stream — verify no leftover data.
                     if !buffer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         throw GenAIError.runtime("Incomplete JSON segment at the end")

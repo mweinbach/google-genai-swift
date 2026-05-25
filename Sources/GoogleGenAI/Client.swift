@@ -103,6 +103,7 @@ public final class GoogleGenAI: @unchecked Sendable {
         let envLocation = env["GOOGLE_CLOUD_LOCATION"]
         let envEnterprise = env["GOOGLE_GENAI_USE_ENTERPRISE"].flatMap(parseBool)
         let envVertexai = env["GOOGLE_GENAI_USE_VERTEXAI"].flatMap(parseBool)
+        let envCredentialsPath = env["GOOGLE_APPLICATION_CREDENTIALS"]
 
         // Enterprise vs vertexai precedence: explicit option > env var > default false.
         if let e = options.enterprise, let v = options.vertexai, e != v {
@@ -130,7 +131,11 @@ public final class GoogleGenAI: @unchecked Sendable {
                     "Vertex AI / Enterprise requires either an API key or both project and location."
                 )
             }
-            auth = DefaultAuth(googleAuthOptions: options.googleAuthOptions)
+            var resolvedAuthOptions = options.googleAuthOptions
+            if resolvedAuthOptions == nil, let credPath = envCredentialsPath {
+                resolvedAuthOptions = GoogleAuthOptions(keyFile: credPath)
+            }
+            auth = DefaultAuth(googleAuthOptions: resolvedAuthOptions)
         } else {
             throw GenAIError.invalidArgument(
                 "An API key must be set for the Gemini API. Provide options.apiKey or set GOOGLE_API_KEY / GEMINI_API_KEY in the environment."

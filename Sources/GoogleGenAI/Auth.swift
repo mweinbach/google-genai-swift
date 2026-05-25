@@ -37,8 +37,9 @@ public struct DefaultAuthOptions: Sendable {
 
 /// Foundation-native equivalent of the `google-auth-library` `GoogleAuthOptions` interface.
 ///
-/// Only the fields the Swift SDK currently honors are exposed. Service-account JWT signing is
-/// not yet implemented in pure Swift; passing this struct will currently throw `unsupported`.
+/// When `credentialsJSON` or `keyFile` is provided, the SDK uses `Security.framework` to
+/// sign a JWT (RS256) and exchange it for an OAuth2 access token via the keyfile's
+/// `token_uri`. Tokens are cached and refreshed automatically.
 public struct GoogleAuthOptions: Sendable {
     /// OAuth scopes to request when minting credentials.
     public var scopes: [String]?
@@ -57,21 +58,24 @@ public struct GoogleAuthOptions: Sendable {
 /// Concrete `Auth` implementation that collapses `NodeAuth` (Node runtime) and `WebAuth`
 /// (browser runtime) from the JS SDK into a single Foundation-native class.
 ///
-/// API-key auth is fully supported. Vertex AI ADC / service-account auth is not yet ported —
-/// passing `GoogleAuthOptions` will result in `GenAIError.unsupported`.
+/// API-key auth is fully supported. Vertex AI ADC / service-account auth uses
+/// `Security.framework` for RS256 JWT signing and automatic token caching/refresh.
 public final class DefaultAuth: Auth, @unchecked Sendable {
     private let apiKey: String?
     private let googleAuthOptions: GoogleAuthOptions?
+    private let credential: ServiceAccountCredential?
 
     public init(options: DefaultAuthOptions) {
         if let key = options.apiKey {
             self.apiKey = key
             self.googleAuthOptions = nil
+            self.credential = nil
         } else {
             self.apiKey = nil
-            // Mirrors `new GoogleAuth(buildGoogleAuthOptions(opts.googleAuthOptions))` in NodeAuth.
-            self.googleAuthOptions = (try? buildGoogleAuthOptions(options.googleAuthOptions))
+            let authOptions = (try? buildGoogleAuthOptions(options.googleAuthOptions))
                 ?? GoogleAuthOptions(scopes: [GENAI_REQUIRED_VERTEX_SCOPE])
+            self.googleAuthOptions = authOptions
+            self.credential = Self.makeCredential(from: authOptions)
         }
     }
 
@@ -107,14 +111,26 @@ public final class DefaultAuth: Auth, @unchecked Sendable {
     }
 
     private func addGoogleAuthHeaders(_ headers: inout [String: String], url: String?) async throws {
-        // TODO: implement service-account JWT signing using CryptoKit so Vertex AI ADC works
-        // natively on Apple platforms. For now we surface a clear error so callers know to use
-        // an API key.
-        _ = googleAuthOptions
-        _ = url
-        throw GenAIError.unsupported(
-            "Vertex AI service account auth is not yet ported to Swift; use API key auth"
-        )
+        guard let credential = credential else {
+            throw GenAIError.unsupported(
+                "No service-account credentials available; provide GoogleAuthOptions with credentialsJSON or keyFile"
+            )
+        }
+        let token = try await credential.getAccessToken()
+        if headers["Authorization"] == nil {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+    }
+
+    private static func makeCredential(from options: GoogleAuthOptions) -> ServiceAccountCredential? {
+        let scopes = options.scopes ?? [GENAI_REQUIRED_VERTEX_SCOPE]
+        if let jsonData = options.credentialsJSON {
+            return try? ServiceAccountCredential(credentialsJSON: jsonData, scopes: scopes)
+        }
+        if let path = options.keyFile {
+            return try? ServiceAccountCredential(keyFilePath: path, scopes: scopes)
+        }
+        return nil
     }
 }
 

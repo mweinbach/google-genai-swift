@@ -41,6 +41,8 @@ public enum `Type`: String, Codable, Sendable {
 public enum Environment: String, Codable, Sendable {
     case environmentUnspecified = "ENVIRONMENT_UNSPECIFIED"
     case environmentBrowser = "ENVIRONMENT_BROWSER"
+    case environmentMobile = "ENVIRONMENT_MOBILE"
+    case environmentDesktop = "ENVIRONMENT_DESKTOP"
 }
 
 /// Type of auth scheme. This enum is not supported in Gemini API.
@@ -324,12 +326,26 @@ public enum PairwiseChoice: String, Codable, Sendable {
     case tie = "TIE"
 }
 
-/// The tuning task. Either I2V or T2V. This enum is not supported in Gemini API.
+/// The speed of the tuning job. Only supported for Veo 3.0 models. This enum is not supported in Gemini API.
+public enum TuningSpeed: String, Codable, Sendable {
+    case tuningSpeedUnspecified = "TUNING_SPEED_UNSPECIFIED"
+    case regular = "REGULAR"
+    case fast = "FAST"
+}
+
+/// The tuning task for Veo. This enum is not supported in Gemini API.
 public enum TuningTask: String, Codable, Sendable {
     case tuningTaskUnspecified = "TUNING_TASK_UNSPECIFIED"
     case tuningTaskI2v = "TUNING_TASK_I2V"
     case tuningTaskT2v = "TUNING_TASK_T2V"
     case tuningTaskR2v = "TUNING_TASK_R2V"
+}
+
+/// The orientation of the video. Defaults to LANDSCAPE. This enum is not supported in Gemini API.
+public enum VideoOrientation: String, Codable, Sendable {
+    case videoOrientationUnspecified = "VIDEO_ORIENTATION_UNSPECIFIED"
+    case landscape = "LANDSCAPE"
+    case portrait = "PORTRAIT"
 }
 
 /// Output only. Current state of the `Document`. This enum is not supported in Vertex AI.

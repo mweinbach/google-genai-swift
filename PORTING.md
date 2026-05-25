@@ -55,3 +55,8 @@ All public types/functions are `public` and `Sendable` where possible. The libra
 
 - `sentencepiece_model.pb.d.ts` is a protobuf typings file — Swift equivalent will use `swift-protobuf` if/when needed by the tokenizer port. Defer.
 - `mcp/_mcp.ts` depends on the `@modelcontextprotocol/sdk` JS package — Swift has no first-party MCP SDK yet; port the surface and stub the transport.
+
+## Previously known gaps (now closed)
+
+- **Vertex AI service-account ADC auth** — implemented via `ServiceAccountCredential.swift` using `Security.framework`'s `SecKeyCreateSignature` for RS256 JWT signing + OAuth2 token exchange + automatic caching/refresh. No external JWT library needed.
+- **SSE decoder byte- not codepoint-streaming** — replaced the all-or-nothing `String(data:encoding:.utf8)` approach in `APIClient.processStreamResponse` with `StreamingUTF8Decoder` (mirrors `TextDecoder({stream: true})`), which returns complete characters immediately and buffers only incomplete trailing multi-byte sequences.
